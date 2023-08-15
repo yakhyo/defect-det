@@ -39,8 +39,8 @@ def main(args):
         sys.exit(1)
 
     os.makedirs(args.output_dir, exist_ok=True)
-    os.makedirs(os.path.join(args.output_dir, "JPEGImages"), exist_ok=True)
-    os.makedirs(os.path.join(args.output_dir, "SegmentationClassPNG"), exist_ok=True)
+    os.makedirs(os.path.join(args.output_dir, "images"), exist_ok=True)
+    os.makedirs(os.path.join(args.output_dir, "masks"), exist_ok=True)
 
     print("Creating dataset:", args.output_dir)
     class_names = []
@@ -75,11 +75,11 @@ def main(args):
         image_pil = Image.open(image_filename)
 
         base = os.path.splitext(os.path.basename(filename))[0]
-        out_img_file = os.path.join(args.output_dir, "JPEGImages", base + ".jpg")
-        out_png_file = os.path.join(args.output_dir, "SegmentationClassPNG", base + ".png")
+        out_img_file = os.path.join(args.output_dir, "images", base + ".jpg")
+        out_png_file = os.path.join(args.output_dir, "masks", base + ".png")
 
         if not args.no_viz:
-            out_viz_file = os.path.join(args.output_dir, "SegmentationClassVisualization", base + ".jpg")
+            out_viz_file = os.path.join(args.output_dir, "image_mask", base + ".jpg")
 
         image_pil.save(out_img_file)
         image_arr = np.array(image_pil)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--labels", type=str, default="./wheel_data/data/labels.txt", help="labels file")
     parser.add_argument("--input-dir", type=str, default="./wheel_data/data", help="input annotated directory")
-    parser.add_argument("--output-dir", type=str, default="./results", help="output dataset directory")
+    parser.add_argument("--output-dir", type=str, default="./data", help="output dataset directory")
     parser.add_argument("--no-viz", help="no visualization", action="store_true")
 
     opt = parser.parse_args()
