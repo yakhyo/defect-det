@@ -3,7 +3,6 @@ import os
 import sys
 import glob
 import argparse
-
 import imgviz
 import labelme
 import numpy as np
@@ -31,7 +30,6 @@ def shapes_to_label(img_shape, shapes, label_name_to_value):
         mask = shape_to_mask(img_shape[:2], points)
 
         cls[mask] = cls_id
-
     return cls
 
 
@@ -40,15 +38,11 @@ def main(args):
         print("Output directory already exists:", args.output_dir)
         sys.exit(1)
 
-    os.makedirs(args.output_dir)
-    os.makedirs(os.path.join(args.output_dir, "JPEGImages"))
-    os.makedirs(os.path.join(args.output_dir, "SegmentationClassPNG"))
-
-    if not args.no_viz:
-        os.makedirs(os.path.join(args.output_dir, "SegmentationClassVisualization"))
+    os.makedirs(args.output_dir, exist_ok=True)
+    os.makedirs(os.path.join(args.output_dir, "JPEGImages"), exist_ok=True)
+    os.makedirs(os.path.join(args.output_dir, "SegmentationClassPNG"), exist_ok=True)
 
     print("Creating dataset:", args.output_dir)
-
     class_names = []
     class_name_to_id = {}
     with open(args.labels, "r") as f:
@@ -70,7 +64,7 @@ def main(args):
         f.writelines("\n".join(class_names))
     print("Saved class_names:", out_class_names_file)
 
-    for filename in os.listdir(args.input_dir):
+    for filename in glob.glob(os.path.join(args.input_dir, "*.json")):
         print("Generating dataset from:", filename)
 
         with open(filename, "r") as f:
@@ -90,7 +84,12 @@ def main(args):
         image_pil.save(out_img_file)
         image_arr = np.array(image_pil)
 
-        lbl = shapes_to_label(img_shape=image_arr.shape, shapes=shapes, label_name_to_value=class_name_to_id)
+        lbl = shapes_to_label(
+            img_shape=image_arr.shape,
+            shapes=shapes,
+            label_name_to_value=class_name_to_id
+        )
+
         labelme.utils.lblsave(out_png_file, lbl)
 
         if not args.no_viz:
