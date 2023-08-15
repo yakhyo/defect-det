@@ -1,11 +1,17 @@
+import os
+
 import random
 
 import numpy as np
 import torch
 from torchvision.transforms import functional as F
 
+from enum import Enum
 
-class LossReduction:
+from utils import LOGGER
+
+
+class LossReduction(Enum):
     """Alias for loss reduction"""
 
     NONE = "none"
@@ -94,3 +100,30 @@ class RandomHorizontalFlip:
             image = F.hflip(image)
             target = F.hflip(target)
         return image, target
+
+
+def add_weight_decay(model, weight_decay=1e-5):
+    decay = []
+    no_decay = []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if len(param.shape) == 1 or name.endswith(".bias"):
+            no_decay.append(param)
+        else:
+            decay.append(param)
+    return [{'params': no_decay, 'weight_decay': 0.}, {'params': decay, 'weight_decay': weight_decay}]
+
+
+def strip_optimizers(f: str, s: str):
+    """Strip optimizer from 'f' to finalize training"""
+    x = torch.load(f, map_location="cpu")
+    for k in "optimizer", "best_score":
+        x[k] = None
+    x["epoch"] = -1
+    x["model"].half()  # to FP16
+    for p in x["model"].parameters():
+        p.requires_grad = False
+    torch.save(x, s)
+    mb = os.path.getsize(s) / 1e6  # get file size
+    LOGGER.info(f"Optimizer stripped from {f}, saved as {s} {mb:.1f}MB")

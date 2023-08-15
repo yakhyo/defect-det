@@ -1,16 +1,25 @@
 import os
 
 from PIL import Image, ImageOps
-from torch.utils import data
+from torch.utils.data import Dataset as BaseDataset
 from utils.misc import Augmentation
 
 
-class Carvana(data.Dataset):
+class DamageDataset(BaseDataset):
+    """DamageDataset:
+
+    Args:
+        root: data path to images folder
+        image_size: expected input image size
+        transforms: default transformer uses (Augmentation)
+        mask_suffix: mask suffix for mask images (default `_mask`)
+    """
     def __init__(
             self,
             root: str,
             image_size: int = 1024,
             transforms: Augmentation = Augmentation(),
+            target_transforms = None,
             mask_suffix: str = "_mask"
     ) -> None:
         self.root = root
@@ -19,7 +28,9 @@ class Carvana(data.Dataset):
         self.filenames = [os.path.splitext(filename)[0] for filename in os.listdir(os.path.join(self.root, "images"))]
         if not self.filenames:
             raise FileNotFoundError(f"Files not found in {root}")
+
         self.transforms = transforms
+        self.target_transforms = target_transforms
 
     def __len__(self):
         return len(self.filenames)
@@ -43,10 +54,23 @@ class Carvana(data.Dataset):
         if self.transforms is not None:
             image, mask = self.transforms(image, mask)
 
+        if self.target_transforms is not None:
+            image, mask = self.target_transforms(image, mask)
+
         return image, mask
 
     @staticmethod
     def resize_pil(image, mask, image_size):
+        """Letter box resizing: Downscales larges side of the image to a given
+        `image_size` then smaller size will be padded by both sides
+
+        Args:
+            image: input image
+            mask: input mask
+            image_size: desired image size
+        Returns:
+            resized pil image and mask
+        """
         w, h = image.size
         scale = min(image_size / w, image_size / h)
 

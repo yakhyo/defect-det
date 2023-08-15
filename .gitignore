@@ -7,6 +7,8 @@ logs
 .vscode
 wheel_data/
 data/
+weights/
+output.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,3 +1,5 @@
 labelme
 imgviz
 pillow
+matplotlib
+tqdm

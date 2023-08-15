@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from unet.utils.misc import weight_reduce_loss
+from utils.misc import weight_reduce_loss
 
 __all__ = ["DiceLoss", "DiceCELoss"]
 
