@@ -1,8 +1,8 @@
 # Defect Detection using Segmentation
 
 <div align="center">
-<img src="./assets/mask.png" width="500px">
-<img src="./assets/image.png" width="500px">
+<img src="./assets/mask.png" width="450px">
+<img src="./assets/image.png" width="450px">
 <p>Sample image and corresponding defect mask</p>
 </div>
 
