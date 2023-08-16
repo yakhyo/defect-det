@@ -1,18 +1,31 @@
-# Damage Detection
+# Defect Detection using Segmentation
+
+<div align="center">
+<img src="./assets/mask.png" width="500px">
+<img src="./assets/image.png" width="500px">
+<p>Sample image and corresponding defect mask</p>
+</div>
 
 ## Introduction
 
-This documentation outlines the work I have done to address the damage segmentation task as part of the job assignment. The goal of this task was to develop a model capable of segmenting damaged regions in images. This document provides an overview of the approach, methodology, results, and the tools utilized throughout the process.
+This documentation outlines the work I have done to address the defect detection task as part of the job assignment. 
+The goal of this task was to develop a model capable of detecting defect regions in images. 
+This document provides an overview of the approach, methodology, results, and the tools utilized throughout the process.
+Step-by-step approaches to improve the model performance in terms of Mean IOU (according to the request) is provided.
 
 ## Task Overview
 
-The task involved segmenting damaged regions within images, which can have applications in various fields, such as insurance, infrastructure assessment, and disaster response.
+The task to s
 
 ## Approach
 
 ### Data Preparation
 
 1. **Dataset:** Describe the dataset used for the task. Specify the number of images, resolution, and any data augmentation techniques employed.
+
+<div align="center">
+<img src="./assets/distribution.png" width="500px">
+</div>
 
 2. **Labeling:** Explain how the ground truth labels for damaged regions were obtained. Specify if manual labeling, annotation tools, or other methods were used.
 

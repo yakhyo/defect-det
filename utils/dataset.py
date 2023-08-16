@@ -2,7 +2,7 @@ import os
 
 from PIL import Image, ImageOps
 from torch.utils.data import Dataset as BaseDataset
-from utils.misc import Augmentation
+from utils.general import Augmentation
 
 
 class DamageDataset(BaseDataset):
@@ -12,19 +12,17 @@ class DamageDataset(BaseDataset):
         root: data path to images folder
         image_size: expected input image size
         transforms: default transformer uses (Augmentation)
-        mask_suffix: mask suffix for mask images (default `_mask`)
     """
+
     def __init__(
             self,
             root: str,
             image_size: int = 1024,
             transforms: Augmentation = Augmentation(),
-            target_transforms = None,
-            mask_suffix: str = "_mask"
+            target_transforms=None,
     ) -> None:
         self.root = root
         self.image_size = image_size
-        self.mask_suffix = mask_suffix
         self.filenames = [os.path.splitext(filename)[0] for filename in os.listdir(os.path.join(self.root, "images"))]
         if not self.filenames:
             raise FileNotFoundError(f"Files not found in {root}")
@@ -40,7 +38,7 @@ class DamageDataset(BaseDataset):
 
         # image path
         image_path = os.path.join(self.root, f"images{os.sep}{filename}.jpg")
-        mask_path = os.path.join(self.root, f"masks{os.sep}{filename + self.mask_suffix}.png")
+        mask_path = os.path.join(self.root, f"masks{os.sep}{filename}.png")
 
         # image load
         image = Image.open(image_path)

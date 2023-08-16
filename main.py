@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 from copy import deepcopy
 
@@ -9,26 +10,79 @@ from tqdm import tqdm
 
 from models import UNet
 from utils.dataset import DamageDataset
-from utils.losses import DiceCELoss, DiceLoss
-from utils.misc import strip_optimizers, add_weight_decay
+from utils.dice_loss import DiceCELoss, DiceLoss
+from utils.general import strip_optimizers, add_weight_decay, AverageMeter
 
 from utils import LOGGER
 
-def jaccard_index(pred, target, num_classes):
+
+def jaccard_index(inputs, target, num_classes):
     # Convert the prediction and target tensors to one-hot encoding
-    pred = torch.softmax(pred, dim=1)
-    pred = torch.argmax(pred, dim=1)
-    pred = torch.nn.functional.one_hot(pred, num_classes=num_classes)
+    inputs = torch.softmax(inputs, dim=1)
+    inputs = torch.argmax(inputs, dim=1)
+    inputs = torch.nn.functional.one_hot(inputs, num_classes=num_classes)
     target = torch.nn.functional.one_hot(target, num_classes=num_classes)
 
     # Calculate the intersection and union tensors
-    intersection = (pred & target).float().sum((0, 1, 2))
-    union = (pred | target).float().sum((0, 1, 2))
+    intersection = (inputs & target).float().sum((0, 1, 2))
+    union = (inputs | target).float().sum((0, 1, 2))
 
     # Calculate the Jaccard Index for each class
     jaccard = intersection / (union + 1e-15)
 
     return jaccard
+
+
+# def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, opt, scaler):
+#     model.train()
+#     batch_time_logger = AverageMeter()
+#     loss_logger = AverageMeter()
+#     iou_logger = AverageMeter()
+#
+#     LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "iou"))
+#     progress_bar = tqdm(data_loader, total=len(data_loader))
+#     for image, target in progress_bar:
+#         image = image.to(device)
+#         target = target.to(device)
+#
+#         with torch.cuda.amp.autocast(enabled=opt.amp):
+#             output = model(image)
+#             loss, losses = criterion(output, target)
+#             iou = jaccard_index(output, target, num_classes=7)
+#
+#         optimizer.zero_grad(set_to_none=True)
+#         if opt.amp is not None:
+#             scaler.scale(loss).backward()
+#             scaler.step(optimizer)
+#             scaler.update()
+#         else:
+#             loss.backward()
+#             optimizer.step()
+#
+#         iou = float(iou.mean())
+#         mem = f"{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G"  # (GB)
+#         progress_bar.set_description(
+#             ("%12s" * 2 + "%12.4g" * 4) % (
+#                 f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss, iou)
+#         )
+#
+
+def get_dataset(opt):
+    # Dataset
+    train_dataset = DamageDataset(root=opt.train, image_size=opt.image_size)
+    test_dataset = DamageDataset(root=opt.test, image_size=opt.image_size)
+
+    # Split
+    n_val = int(len(train_dataset) * 0.1)
+    n_train = len(train_dataset) - n_val
+    train_data, val_data = random_split(train_dataset, [n_train, n_val], generator=torch.Generator().manual_seed(0))
+
+    # DataLoader
+    train_loader = DataLoader(train_data, batch_size=opt.batch_size, num_workers=8, shuffle=True, pin_memory=True)
+    val_loader = DataLoader(val_data, batch_size=opt.batch_size, num_workers=8, drop_last=False, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=opt.batch_size, num_workers=8, drop_last=False, pin_memory=True)
+
+    return train_loader, val_loader, test_loader
 
 
 def train(opt, model, device):
@@ -63,25 +117,15 @@ def train(opt, model, device):
                 )
         del ckpt
 
-    # Dataset
-    trainval_dataset = DamageDataset(root="./data/train", image_size=opt.image_size, mask_suffix="")
-    test_dataset = DamageDataset(root="./data/test", image_size=opt.image_size, mask_suffix="")
-
-    # Split
-    n_val = int(len(trainval_dataset) * 0.1)
-    n_train = len(trainval_dataset) - n_val
-    train_data, val_data = random_split(trainval_dataset, [n_train, n_val], generator=torch.Generator().manual_seed(0))
-
-    # DataLoader
-    train_loader = DataLoader(train_data, batch_size=opt.batch_size, num_workers=8, shuffle=True, pin_memory=True)
-    val_loader = DataLoader(val_data, batch_size=opt.batch_size, num_workers=8, drop_last=False, pin_memory=True)
-    test_loader = DataLoader(test_dataset, batch_size=opt.batch_size, num_workers=8, drop_last=False, pin_memory=True)
+    train_loader, val_loader, test_loader = get_dataset(opt)
 
     # Training
+    iou_list = []
+    dice_list = []
     for epoch in range(start_epoch, opt.epochs):
         model.train()
         epoch_loss = 0
-        LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "iou"))
+        LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "mIOU"))
         progress_bar = tqdm(train_loader, total=len(train_loader))
         for image, target in progress_bar:
             image = image.to(device)
@@ -93,21 +137,29 @@ def train(opt, model, device):
                 iou = jaccard_index(output, target, num_classes=7)
 
             optimizer.zero_grad(set_to_none=True)
-            grad_scaler.scale(loss).backward()
-            grad_scaler.step(optimizer)
-            grad_scaler.update()
+            if opt.amp is not None:
+                grad_scaler.scale(loss).backward()
+                grad_scaler.step(optimizer)
+                grad_scaler.update()
+            else:
+                loss.backward()
+                optimizer.step()
 
             epoch_loss += loss.item()
             iou = float(iou.mean())
             mem = f"{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G"  # (GB)
             progress_bar.set_description(
-                ("%12s" * 2 + "%12.4g" * 4) % (f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss,iou)
+                ("%12s" * 2 + "%12.4g" * 4) % (
+                    f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss, iou)
             )
 
         dice_score, dice_loss, miou = validate(model, val_loader, device)
         LOGGER.info(f"VALIDATION: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {miou}")
         dice_score, dice_loss, miou = validate(model, test_loader, device)
         LOGGER.info(f"TEST: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {miou}")
+
+        iou_list.append(miou)
+        dice_list.append(dice_score)
         scheduler.step(epoch)
         ckpt = {
             "epoch": epoch,
@@ -120,6 +172,12 @@ def train(opt, model, device):
             best_score = max(best_score, dice_score)
             torch.save(ckpt, best)
 
+    save_log = {
+        "iou": iou_list,
+        "dice": dice_list
+    }
+    with open("save_log.json", "w") as f:
+        json.dump(save_log, f)
     # Strip optimizers & save weights
     for f in best, last:
         new_name = os.path.splitext(f)[0] + ".pt"
@@ -145,14 +203,16 @@ def validate(model, dataloader, device, conf_threshold=0.5):
             dice_score += 1 - dice_loss
     model.train()
 
-    return dice_score / len(dataloader), dice_loss, sum(ious)/len(ious)
+    return dice_score / len(dataloader), dice_loss, sum(ious) / len(ious)
 
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="UNet training arguments")
+    parser.add_argument("--train", type=str, default="./data/train", help="Path to train data")
+    parser.add_argument("--test", type=str, default="./data/test", help="Path to test data")
     parser.add_argument("--image_size", type=int, default=512, help="Input image size, default: 512")
     parser.add_argument("--save-dir", type=str, default="weights", help="Directory to save weights")
-    parser.add_argument("--epochs", type=int, default=50, help="Number of epochs, default: 5")
+    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs, default: 5")
     parser.add_argument("--batch-size", type=int, default=2, help="Batch size, default: 12")
     parser.add_argument("--loss", type=str, default="dice", help="Loss function, available: dice, dice_ce, focal")
     parser.add_argument("--lr", type=float, default=1e-5, help="Learning rate, default: 1e-5")
@@ -169,7 +229,7 @@ def main(opt):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     LOGGER.info(f"Device: {device}")
-    model = UNet(in_channels=3, out_channels=opt.num_classes)
+    model = UNet(in_channels=3, out_channels=opt.num_classes).to(device)
 
     LOGGER.info(
         f"Network:\n"

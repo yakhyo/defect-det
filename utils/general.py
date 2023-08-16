@@ -19,7 +19,7 @@ class LossReduction(Enum):
     SUM = "sum"
 
 
-def weight_reduce_loss(loss, weight=None, reduction="mean"):
+def weight_reduce_loss(loss, weight=None, reduction: LossReduction = "mean"):
     """Apply element-wise weight and reduce loss.
     Args:
         loss (Tensor): Element-wise loss.
@@ -127,3 +127,19 @@ def strip_optimizers(f: str, s: str):
     torch.save(x, s)
     mb = os.path.getsize(s) / 1e6  # get file size
     LOGGER.info(f"Optimizer stripped from {f}, saved as {s} {mb:.1f}MB")
+
+
+class AverageMeter:
+    """Computes and stores the average and current value"""
+
+    def __init__(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
