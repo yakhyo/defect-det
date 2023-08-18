@@ -60,12 +60,12 @@ def resize(image, image_size=512):
     return image
 
 
-def predict(model, image, device, conf_thresh=0.5):
+def predict(model, image, device, opt):
     model.eval()
     model.to(device)
 
     # Preprocess
-    image = resize(image)
+    image = resize(image, opt.image_size)
     image = torch.from_numpy(preprocess(image, is_mask=False))
     image = image.unsqueeze(0)
     image = image.to(device, dtype=torch.float32)
@@ -75,7 +75,7 @@ def predict(model, image, device, conf_thresh=0.5):
         if model.out_channels > 1:
             mask = output.argmax(dim=1)
         else:
-            mask = torch.sigmoid(output) > conf_thresh
+            mask = torch.sigmoid(output) > opt.conf_thresh
 
     return mask[0].long().squeeze().numpy()
 
@@ -92,6 +92,8 @@ def parse_opt():
     parser = argparse.ArgumentParser(description="UNet inference arguments")
     parser.add_argument("--weights", default="./weights/last.pt", help="Path to weight file (default: last.pt)")
     parser.add_argument("--input", type=str, default="./data/images/122011114500705_5_side2.jpg", help="Path to input image")
+    parser.add_argument("--image-size", type=int, default=512, help="Input image size, default: 512")
+    parser.add_argument("--use-crop", action="store_true", help="Use cropping ROI for training and testing")
     parser.add_argument("--output", default="output.jpg", help="Path to save mask image")
     parser.add_argument("--view", action="store_true", help="Visualize image and mask")
     parser.add_argument("--no-save", action="store_true", help="Do not save the output masks")
@@ -112,17 +114,21 @@ def main(opt):
 
     # Load & Inference
     image = Image.open(opt.input)
-    output = predict(model=model, image=image, device=device, conf_thresh=opt.conf_thresh)
-    plt.imshow(output)
-    plt.show()
+    if opt.use_crop:
+        image = image.crop((840, 512, 1640, 1312))
+
+    output = predict(model=model, image=image, device=device, opt=opt)
+    # plt.imshow(output)
+    # plt.show()
 
     # Convert mask to image
     result = mask_to_image(output)
+    print(result.size)
     result.save(opt.output)
 
     # Visualize
     if opt.view:
-        image = resize(image)
+        image = resize(image, opt.image_size)
         plot_img_and_mask(image, output)
 
 

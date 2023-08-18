@@ -18,7 +18,7 @@ class DamageDataset(BaseDataset):
             self,
             root: str,
             image_size: int = 1024,
-            use_crop: bool=False,
+            use_crop: bool = False,
             transforms: Augmentation = Augmentation(),
             target_transforms=None,
     ) -> None:

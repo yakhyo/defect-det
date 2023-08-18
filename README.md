@@ -1,67 +1,117 @@
 # Defect Detection using Segmentation
 
 <div align="center">
-<img src="./assets/mask.png" width="400px">
-<img src="./assets/image.png" width="400px">
-<p>Sample image and corresponding defect mask</p>
+<img src="./assets/readme/mask_image.png" width="800px">
+<p><b>Figure 1.</b> Sample image and corresponding defect mask</p>
 </div>
 
 ## Introduction
 
-This documentation outlines the work I have done to address the defect detection task as part of the job assignment. 
-The goal of this task was to develop a model capable of detecting defect regions in images. 
+This documentation outlines the work I have done to address the defect detection task as part of the job assignment.
+The goal of this task was to develop a model capable of detecting defect regions in images.
 This document provides an overview of the approach, methodology, results, and the tools utilized throughout the process.
-Step-by-step approaches to improve the model performance in terms of Mean IOU (according to the request) is provided.
+Step-by-step approaches to improve the model performance in terms of Mean IOU is provided.
 
 ## Task Overview
-
-The task to s
 
 ## Approach
 
 ### Data Preparation
 
-1. **Dataset:** Describe the dataset used for the task. Specify the number of images, resolution, and any data augmentation techniques employed.
+1. **Dataset:** The given dataset has **653** images of object and their corresponding labels. While inspecting the
+   given
+   samples, I found a duplicate image and after removing that a duplicate image there left **652** images. From **652**
+   images there were 4 images for evaluation (shown in `NewDataInfo.txt`). (⚠ - quite small number samples for
+   evaluation)
 
-<div align="center">
-<img src="./assets/distribution.png" width="500px">
-</div>
+   <div align="center">
+   <img src="./assets/readme/distribution.png" width="500px">
+   <p><b>Figure 2.</b><code>X-axis</code>: Types of Defects, <code>Y-axis</code>: Number of Instances</p>
+   </div>
 
-2. **Labeling:** Explain how the ground truth labels for damaged regions were obtained. Specify if manual labeling, annotation tools, or other methods were used.
+   From the **Figure 2**, we can see that there is a class imbalance problem in the given dataset. There are quite small
+   number of samples for `GREY`, `STABBED`, `RED` compared to other classes have. (⚠ - class imbalance problem)
+2. **Labeling:** I parsed given json files and converted them all to mask images. See the conversion code
+   here: [ann2mask.py](./utils/ann2mask.py).
 
 ### Model Architecture
 
-1. **Choice of Model:** Detail the architecture of the segmentation model chosen for the task. Explain the rationale behind the choice and provide references if applicable.
+1. **Choice of Model:** I used famous UNet model for this task. A brief structure of this model shown in **Figure 3**.
+   <div align="center">
+   <img src="./assets/readme/unet.png" width="800px">
+   <p><b>Figure 3</b>. UNet model architecture.</p>
+   </div>
 
-2. **Preprocessing:** Describe any preprocessing steps applied to the images before feeding them into the model. Include information about resizing, normalization, or any other transformations.
+2. **Preprocessing:** Describe any preprocessing steps applied to the images before feeding them into the model. Include
+   information about resizing, normalization, or any other transformations.
 
 ### Training
 
-1. **Loss Function:** Specify the loss function used for training the model. If class weights were employed, explain how they were calculated.
+1. **Loss Function:**
+   Choosing a loss function is a vital point for any deep learning task. There are many loss functions which works
+   perfect for certain datasets but does not work well on custom datasets. Especially, when it comes to real world
+   data there are so many challenges in choosing a loss function due to the distribution of the data and the nature of
+   the data. For instance, Usually **Cross Entropy Loss** used as a default starter for any segmentation task. However,
+   if there is a class imbalance in the data then **Cross Entropy Loss** cannot be the optimal choice.
 
-2. **Optimizer:** Detail the optimizer chosen and its hyperparameters. Explain any learning rate schedules used during training.
+   If there is a class imbalance problem in the dataset then the following losses are the best option. So I implemented
+   the following losses and compared the model performance for each loss respectively.
+    - **Dice Loss** [[paper](https://arxiv.org/abs/1707.03237v3)]
+    - Dice + Cross Entropy Loss
+    - **Focal Loss** [[paper](https://arxiv.org/abs/1708.02002v2)]
 
-3. **Training Procedure:** Describe the training process, including the number of epochs, batch size, and any early stopping mechanisms employed.
+2. **Optimizer:**
+
+    - **RMSprop** (**Root Mean Square Propagation**):
+        - Advantages: RMSProp **adapts the learning rates** based on the magnitudes of recent gradients. It helps
+          mitigate
+          the vanishing and exploding gradient problem and can lead to stable training.
+        - Considerations: Like Adam, RMSProp adjusts the learning rates individually, which might **lead to aggressive
+          updates in some cases.**
+    - **SGD** (**Stochastic Gradient Descent**):
+        - Advantages: SGD is a classic optimization algorithm. It can work well with carefully tuned learning rates and
+          momentum, making it useful for fine-tuning and achieving good generalization.
+        - Considerations: It might require more hyperparameter tuning compared to adaptive optimizers like Adam. Using a
+          learning rate schedule (learning rate decay) can be beneficial to stabilize training.
+    - **Adam Optimizer**:
+        - Advantages: Adam (Adaptive Moment Estimation) is an adaptive learning rate optimizer that computes individual
+          learning rates for different parameters. It combines the benefits of both the AdaGrad and RMSProp optimizers.
+        - Considerations: Adam is widely used and often works well out of the box. However, it might not be the best
+          choice for all scenarios, as its adaptive nature could lead to fast convergence but potentially overshoot the
+          optimal solution.
+
+3. **Training Procedure:**
+    - Number of Epochs: 100
+    - Batch size: 2
+    - Early Stopping Patience: 10
+    - Divided the training data into `train` and `validation` set to monitor the models performance gain for
+      benchmarking purposes.
 
 ## Results
 
 ### Evaluation Metrics
 
-1. **Metrics Chosen:** Specify the evaluation metrics used to assess the performance of the model. Common metrics include Intersection over Union (IoU), Dice Coefficient, and pixel accuracy.
+1. **Metrics Chosen:**
+   - Dice Score.
+   - Mean Intersection Over Union (mIOU).
 
-2. **Quantitative Results:** Present the quantitative results achieved on both the validation and test datasets. Include average metrics and metrics for each class if applicable.
+2. **Quantitative Results:** Present the quantitative results achieved on both the validation and test datasets. Include
+   average metrics and metrics for each class if applicable.
 
 ### Qualitative Results
 
-1. **Visualizations:** Showcase visual examples of the model's predictions. Compare the predicted segmentation masks with the ground truth to demonstrate the quality of the segmentations.
+1. **Visualizations:** Showcase visual examples of the model's predictions. Compare the predicted segmentation masks
+   with the ground truth to demonstrate the quality of the segmentations.
 
 ## Conclusion
 
-Summarize the key points of the work done for the damage segmentation task. Highlight the strengths of the approach and discuss any challenges faced during the process.
+Summarize the key points of the work done for the damage segmentation task. Highlight the strengths of the approach and
+discuss any challenges faced during the process.
 
 ## Future Improvements
 
-Suggest possible improvements that could enhance the performance of the segmentation model or address any limitations encountered during the task.
+Suggest possible improvements that could enhance the performance of the segmentation model or address any limitations
+encountered during the task.
 
 ## Tools Used
 

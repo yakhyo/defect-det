@@ -217,7 +217,7 @@ def parse_opt():
     parser = argparse.ArgumentParser(description="UNet training arguments")
     parser.add_argument("--train", type=str, default="./data/train", help="Path to train data")
     parser.add_argument("--test", type=str, default="./data/test", help="Path to test data")
-    parser.add_argument("--image_size", type=int, default=512, help="Input image size, default: 512")
+    parser.add_argument("--image-size", type=int, default=512, help="Input image size, default: 512")
     parser.add_argument("--use-crop", action="store_true", help="Use cropping ROI for training and testing")
     parser.add_argument("--save-dir", type=str, default="weights", help="Directory to save weights")
     parser.add_argument("--epochs", type=int, default=100, help="Number of epochs, default: 5")
