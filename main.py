@@ -14,6 +14,7 @@ from utils.dice_loss import DiceCELoss, DiceLoss
 from utils.general import strip_optimizers, add_weight_decay, AverageMeter
 
 from utils import LOGGER
+from utils.random import random_seed
 
 
 def jaccard_index(inputs, target, num_classes):
@@ -69,13 +70,13 @@ def jaccard_index(inputs, target, num_classes):
 
 def get_dataset(opt):
     # Dataset
-    train_dataset = DamageDataset(root=opt.train, image_size=opt.image_size)
-    test_dataset = DamageDataset(root=opt.test, image_size=opt.image_size)
+    train_dataset = DamageDataset(root=opt.train, image_size=opt.image_size, use_crop=opt.use_crop)
+    test_dataset = DamageDataset(root=opt.test, image_size=opt.image_size, use_crop=opt.use_crop)
 
     # Split
     n_val = int(len(train_dataset) * 0.1)
     n_train = len(train_dataset) - n_val
-    train_data, val_data = random_split(train_dataset, [n_train, n_val], generator=torch.Generator().manual_seed(0))
+    train_data, val_data = random_split(train_dataset, [n_train, n_val])
 
     # DataLoader
     train_loader = DataLoader(train_data, batch_size=opt.batch_size, num_workers=8, shuffle=True, pin_memory=True)
@@ -99,6 +100,7 @@ def train(opt, model, device):
 
     # Optimizers & LR Scheduler & Mixed Precision & Loss
     parameters = add_weight_decay(model, weight_decay=opt.weight_decay)
+    # optimizer = torch.optim.Adam(parameters, lr=opt.lr, weight_decay=1e-8)
     optimizer = torch.optim.RMSprop(parameters, lr=opt.lr, weight_decay=1e-8, momentum=0.9)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", patience=5)
     grad_scaler = torch.cuda.amp.GradScaler(enabled=opt.amp)
@@ -120,11 +122,13 @@ def train(opt, model, device):
     train_loader, val_loader, test_loader = get_dataset(opt)
 
     # Training
-    iou_list = []
-    dice_list = []
+    val_iou_list = []
+    test_iou_list = []
+    train_iou_list = []
     for epoch in range(start_epoch, opt.epochs):
         model.train()
         epoch_loss = 0
+        epoch_iou = 0
         LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "mIOU"))
         progress_bar = tqdm(train_loader, total=len(train_loader))
         for image, target in progress_bar:
@@ -147,19 +151,21 @@ def train(opt, model, device):
 
             epoch_loss += loss.item()
             iou = float(iou.mean())
+            epoch_iou += iou
             mem = f"{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G"  # (GB)
             progress_bar.set_description(
                 ("%12s" * 2 + "%12.4g" * 4) % (
                     f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss, iou)
             )
 
-        dice_score, dice_loss, miou = validate(model, val_loader, device)
-        LOGGER.info(f"VALIDATION: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {miou}")
-        dice_score, dice_loss, miou = validate(model, test_loader, device)
-        LOGGER.info(f"TEST: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {miou}")
+        dice_score, dice_loss, val_miou = validate(model, val_loader, device)
+        LOGGER.info(f"VALIDATION: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {val_miou}")
+        dice_score, dice_loss, test_miou = validate(model, test_loader, device)
+        LOGGER.info(f"TEST: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {test_miou}")
 
-        iou_list.append(miou)
-        dice_list.append(dice_score)
+        train_iou_list.append(epoch_iou/len(train_loader))
+        val_iou_list.append(val_miou)
+        test_iou_list.append(test_miou)
         scheduler.step(epoch)
         ckpt = {
             "epoch": epoch,
@@ -173,8 +179,9 @@ def train(opt, model, device):
             torch.save(ckpt, best)
 
     save_log = {
-        "iou": iou_list,
-        "dice": dice_list
+        "val_iou": val_iou_list,
+        "test_iou": test_iou_list,
+        "train_iou": train_iou_list
     }
     with open("save_log.json", "w") as f:
         json.dump(save_log, f)
@@ -211,6 +218,7 @@ def parse_opt():
     parser.add_argument("--train", type=str, default="./data/train", help="Path to train data")
     parser.add_argument("--test", type=str, default="./data/test", help="Path to test data")
     parser.add_argument("--image_size", type=int, default=512, help="Input image size, default: 512")
+    parser.add_argument("--use-crop", action="store_true", help="Use cropping ROI for training and testing")
     parser.add_argument("--save-dir", type=str, default="weights", help="Directory to save weights")
     parser.add_argument("--epochs", type=int, default=100, help="Number of epochs, default: 5")
     parser.add_argument("--batch-size", type=int, default=2, help="Batch size, default: 12")
@@ -225,6 +233,7 @@ def parse_opt():
 
 
 def main(opt):
+    random_seed()
     assert opt.loss in ["dice", "dice_ce", "focal"], f"{opt.loss} not found in [`dice`, `dice_ce`, `focal`]"
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

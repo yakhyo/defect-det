@@ -2,7 +2,7 @@ import os
 
 from PIL import Image, ImageOps
 from torch.utils.data import Dataset as BaseDataset
-from utils.general import Augmentation
+from utils.general import Augmentation, LOGGER
 
 
 class DamageDataset(BaseDataset):
@@ -18,11 +18,15 @@ class DamageDataset(BaseDataset):
             self,
             root: str,
             image_size: int = 1024,
+            use_crop: bool=False,
             transforms: Augmentation = Augmentation(),
             target_transforms=None,
     ) -> None:
         self.root = root
         self.image_size = image_size
+        self.use_crop = use_crop
+        if self.use_crop:
+            LOGGER.info("`use_crop=True` ROI cropping is being used")
         self.filenames = [os.path.splitext(filename)[0] for filename in os.listdir(os.path.join(self.root, "images"))]
         if not self.filenames:
             raise FileNotFoundError(f"Files not found in {root}")
@@ -43,6 +47,10 @@ class DamageDataset(BaseDataset):
         # image load
         image = Image.open(image_path)
         mask = Image.open(mask_path)
+
+        if self.use_crop:
+            image = image.crop((840, 512, 1640, 1312))
+            mask = mask.crop((840, 512, 1640, 1312))
 
         # resize
         image, mask = self.resize_pil(image, mask, image_size=self.image_size)
