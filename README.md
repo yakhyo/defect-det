@@ -21,7 +21,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 1. **Dataset:** The given dataset has **653** images of object and their corresponding labels. While inspecting the
    given
    samples, I found a duplicate image and after removing that a duplicate image there left **652** images. From **652**
-   images there were 4 images for evaluation (shown in `NewDataInfo.txt`). (⚠ - quite small number samples for
+   images there were 4 images for evaluation (shown in `NewDataInfo.txt`). (⚠️ - quite small number samples for
    evaluation)
 
    <div align="center">
@@ -30,7 +30,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    </div>
 
    From the **Figure 2**, we can see that there is a class imbalance problem in the given dataset. There are quite small
-   number of samples for `GREY`, `STABBED`, `RED` compared to other classes have. (⚠ - class imbalance problem)
+   number of samples for `GREY`, `STABBED`, `RED` compared to other classes have. (⚠️ - class imbalance problem)
 2. **Labeling:** I parsed given json files and converted them all to mask images. See the conversion code
    here: [ann2mask.py](./utils/ann2mask.py).
 
@@ -42,8 +42,22 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    <p><b>Figure 3</b>. UNet model architecture.</p>
    </div>
 
-2. **Preprocessing:** Describe any preprocessing steps applied to the images before feeding them into the model. Include
-   information about resizing, normalization, or any other transformations.
+   - **Why not SOTA model❓**:
+     1. **Data and Resource**: Using SOTA model we might get better results on certain tasks. Hence, SOTA models come
+        with complex structure and different training strategies which leads to better performance. However, they require
+        a significant amount of labeled training data and computation power for training. If there is a large dataset and
+        powerful hardware, training a complex model might be feasible.
+     2. **Time**: Training and fine-tuning a state-of-the-art model can be time-consuming. For this reason I did not
+        choose current SOTA model for this task.
+
+   - **Why did you choose UNet❓**:
+     1. **Limited Data**: There size of given labeled data is small. Therefore, using simple model and applying some
+        techniques such as augmentation, regularization can help to improve the mIOU.
+     2. **Computational Resources**: Simple models generally faster to train and require fewer computational resources.
+     3. **Debugging**: Simple models are good start to understand how different techniques affect performance of the model.
+
+
+2. **Preprocessing:** #TODO
 
 ### Training
 
@@ -92,8 +106,8 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 ### Evaluation Metrics
 
 1. **Metrics Chosen:**
-   - Dice Score.
-   - Mean Intersection Over Union (mIOU).
+    - Dice Score.
+    - Mean Intersection Over Union (mIOU).
 
 2. **Quantitative Results:** Present the quantitative results achieved on both the validation and test datasets. Include
    average metrics and metrics for each class if applicable.

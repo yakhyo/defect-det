@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import sys
 from copy import deepcopy
 
 import torch
@@ -11,7 +12,7 @@ from tqdm import tqdm
 from models import UNet
 from utils.dataset import DamageDataset
 from utils.dice_loss import DiceCELoss, DiceLoss
-from utils.general import strip_optimizers, add_weight_decay, AverageMeter
+from utils.general import strip_optimizers, add_weight_decay, AverageMeter, EarlyStopping
 
 from utils import LOGGER
 from utils.random import random_seed
@@ -125,6 +126,7 @@ def train(opt, model, device):
     val_iou_list = []
     test_iou_list = []
     train_iou_list = []
+    stopper = EarlyStopping(opt.patience)
     for epoch in range(start_epoch, opt.epochs):
         model.train()
         epoch_loss = 0
@@ -159,6 +161,8 @@ def train(opt, model, device):
             )
 
         dice_score, dice_loss, val_miou = validate(model, val_loader, device)
+        if stopper(epoch, val_miou):
+            sys.exit(1)
         LOGGER.info(f"VALIDATION: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {val_miou}")
         dice_score, dice_loss, test_miou = validate(model, test_loader, device)
         LOGGER.info(f"TEST: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {test_miou}")
@@ -220,7 +224,9 @@ def parse_opt():
     parser.add_argument("--image-size", type=int, default=512, help="Input image size, default: 512")
     parser.add_argument("--use-crop", action="store_true", help="Use cropping ROI for training and testing")
     parser.add_argument("--save-dir", type=str, default="weights", help="Directory to save weights")
-    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs, default: 5")
+
+    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs, default: 100")
+    parser.add_argument("--patience", type=int, default=10, help="Number of patience to stop, default: 10")
     parser.add_argument("--batch-size", type=int, default=2, help="Batch size, default: 12")
     parser.add_argument("--loss", type=str, default="dice", help="Loss function, available: dice, dice_ce, focal")
     parser.add_argument("--lr", type=float, default=1e-5, help="Learning rate, default: 1e-5")
