@@ -1,7 +1,6 @@
 import argparse
 import json
 import os
-import sys
 from copy import deepcopy
 
 import torch
@@ -12,67 +11,40 @@ from tqdm import tqdm
 from models import UNet
 from utils.dataset import DamageDataset
 from utils.dice_loss import DiceCELoss, DiceLoss
-from utils.general import strip_optimizers, add_weight_decay, AverageMeter, EarlyStopping
+from utils.focal_loss import FocalLoss
+from utils.general import (
+    strip_optimizers,
+    add_weight_decay,
+    AverageMeter,
+    EarlyStopping,
+    jaccard_index,
+    EvalTransform,
+    TrainTransform
+)
 
 from utils import LOGGER
 from utils.random import random_seed
 
 
-def jaccard_index(inputs, target, num_classes):
-    # Convert the prediction and target tensors to one-hot encoding
-    inputs = torch.softmax(inputs, dim=1)
-    inputs = torch.argmax(inputs, dim=1)
-    inputs = torch.nn.functional.one_hot(inputs, num_classes=num_classes)
-    target = torch.nn.functional.one_hot(target, num_classes=num_classes)
-
-    # Calculate the intersection and union tensors
-    intersection = (inputs & target).float().sum((0, 1, 2))
-    union = (inputs | target).float().sum((0, 1, 2))
-
-    # Calculate the Jaccard Index for each class
-    jaccard = intersection / (union + 1e-15)
-
-    return jaccard
-
-
-# def train_one_epoch(model, criterion, optimizer, data_loader, device, epoch, opt, scaler):
-#     model.train()
-#     batch_time_logger = AverageMeter()
-#     loss_logger = AverageMeter()
-#     iou_logger = AverageMeter()
+# def calculate_class_weights(label_dir):
+#     with open("./data/class_names.txt", "r") as f:
 #
-#     LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "iou"))
-#     progress_bar = tqdm(data_loader, total=len(data_loader))
-#     for image, target in progress_bar:
-#         image = image.to(device)
-#         target = target.to(device)
-#
-#         with torch.cuda.amp.autocast(enabled=opt.amp):
-#             output = model(image)
-#             loss, losses = criterion(output, target)
-#             iou = jaccard_index(output, target, num_classes=7)
-#
-#         optimizer.zero_grad(set_to_none=True)
-#         if opt.amp is not None:
-#             scaler.scale(loss).backward()
-#             scaler.step(optimizer)
-#             scaler.update()
-#         else:
-#             loss.backward()
-#             optimizer.step()
-#
-#         iou = float(iou.mean())
-#         mem = f"{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G"  # (GB)
-#         progress_bar.set_description(
-#             ("%12s" * 2 + "%12.4g" * 4) % (
-#                 f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss, iou)
-#         )
 #
 
 def get_dataset(opt):
     # Dataset
-    train_dataset = DamageDataset(root=opt.train, image_size=opt.image_size, use_crop=opt.use_crop)
-    test_dataset = DamageDataset(root=opt.test, image_size=opt.image_size, use_crop=opt.use_crop)
+    train_dataset = DamageDataset(
+        root=opt.train,
+        image_size=opt.image_size,
+        use_crop=opt.use_crop,
+        transforms=TrainTransform()
+    )
+    test_dataset = DamageDataset(
+        root=opt.test,
+        image_size=opt.image_size,
+        use_crop=opt.use_crop,
+        transforms=EvalTransform()
+    )
 
     # Split
     n_val = int(len(train_dataset) * 0.1)
@@ -222,6 +194,8 @@ def validate(model, dataloader, device, conf_threshold=0.5):
 
 def parse_opt():
     parser = argparse.ArgumentParser(description="UNet training arguments")
+    parser.add_argument('--mode', choices=['train', 'test'], default='train',
+                        help='Specify whether to run in "train" or "test" mode (default: "train")')
     parser.add_argument("--train", type=str, default="./data/train", help="Path to train data")
     parser.add_argument("--test", type=str, default="./data/test", help="Path to test data")
     parser.add_argument("--image-size", type=int, default=512, help="Input image size, default: 512")
@@ -257,8 +231,17 @@ def main(opt):
 
     # Create folder to save weights
     os.makedirs(opt.save_dir, exist_ok=True)
-
-    train(opt, model, device)
+    if opt.mode == "test":
+        assert os.path.isfile(opt.weights), f"show the path to the trained model, opt.weight: {opt.weight}"
+        _, _, test_loader = get_dataset(opt)
+        ckpt = torch.load(opt.weights, map_location=device)
+        model.load_state_dict(ckpt["model"].float().state_dict())
+        dice_score, dice_loss, miou = validate(model, test_loader, device)
+        LOGGER.info(f"Dice score: {dice_score}, Dice loss: {dice_loss}, mIOU: {miou}")
+    elif opt.mode == "train":
+        train(opt, model, device)
+    else:
+        raise ValueError(f"There are only `test` and `train` mode, your input: {opt.mode}")
 
 
 if __name__ == "__main__":

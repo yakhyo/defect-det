@@ -103,7 +103,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 3. **Training Procedure:**
     - Number of Epochs: 100
     - Batch size: 2
-    - Early Stopping Patience: 10
+    - Early Stopping Patience: 30
     - Divided the training data into `train` and `validation` set to monitor the models performance gain for
       benchmarking purposes.
 
@@ -130,13 +130,7 @@ discuss any challenges faced during the process.
 
 ## Future Improvements
 
-Suggest possible improvements that could enhance the performance of the segmentation model or address any limitations
-encountered during the task.
 
-## Tools Used
-
-List the tools, frameworks, and libraries used throughout the project (e.g., Python, PyTorch, OpenCV).
-
-## Acknowledgments
-
-Acknowledge any datasets, resources, or references that were instrumental in completing the task.
+- Class weights
+- Applying TTA (Test Time Augmentation)
+- ROI cropping 

@@ -43,18 +43,54 @@ def weight_reduce_loss(loss, weight=None, reduction: LossReduction = "mean"):
     return loss
 
 
-class Augmentation:
-    """Standard Augmentation"""
+class EvalTransform:
+    """Evaluation Augmentation"""
 
-    def __init__(self, hflip_prop: float = 0.5) -> None:
+    def __init__(self, mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)) -> None:
+        self.transforms = Compose(
+            [
+                PILToTensor(),
+                ConvertImageDtype(torch.float),
+                Normalize(mean=mean, std=std),
+            ]
+        )
+
+    def __call__(self, img, target):
+        return self.transforms(img, target)
+
+
+class TrainTransform:
+
+    def __init__(
+            self,
+            hflip_prop: float = 0.5,
+            mean=(0.485, 0.456, 0.406),
+            std=(0.229, 0.224, 0.225)
+    ) -> None:
         transforms = []
         if hflip_prop > 0:
             transforms.append(RandomHorizontalFlip(hflip_prop))
-        transforms.extend([PILToTensor(), ConvertImageDtype(torch.float)])
+        transforms.extend(
+            [
+                PILToTensor(),
+                ConvertImageDtype(torch.float),
+                Normalize(mean=mean, std=std)
+            ]
+        )
         self.transforms = Compose(transforms)
 
     def __call__(self, img, target):
         return self.transforms(img, target)
+
+
+class Normalize:
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, image, target):
+        image = F.normalize(image, mean=self.mean, std=self.std)
+        return image, target
 
 
 class PILToTensor:
@@ -162,3 +198,20 @@ class EarlyStopping:
             LOGGER.info(f'Stopping training early as no improvement observed in last {self.patience} epochs. '
                         f'Best results observed at epoch {self.best_epoch}, best model saved as best.pt')
         return stop
+
+
+def jaccard_index(inputs, target, num_classes):
+    # Convert the prediction and target tensors to one-hot encoding
+    inputs = torch.softmax(inputs, dim=1)
+    inputs = torch.argmax(inputs, dim=1)
+    inputs = torch.nn.functional.one_hot(inputs, num_classes=num_classes)
+    target = torch.nn.functional.one_hot(target, num_classes=num_classes)
+
+    # Calculate the intersection and union tensors
+    intersection = (inputs & target).float().sum((0, 1, 2))
+    union = (inputs | target).float().sum((0, 1, 2))
+
+    # Calculate the Jaccard Index for each class
+    jaccard = intersection / (union + 1e-15)
+
+    return jaccard

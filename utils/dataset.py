@@ -2,7 +2,7 @@ import os
 
 from PIL import Image, ImageOps
 from torch.utils.data import Dataset as BaseDataset
-from utils.general import Augmentation, LOGGER
+from utils.general import LOGGER
 
 
 class DamageDataset(BaseDataset):
@@ -19,7 +19,7 @@ class DamageDataset(BaseDataset):
             root: str,
             image_size: int = 1024,
             use_crop: bool = False,
-            transforms: Augmentation = Augmentation(),
+            transforms=None,
             target_transforms=None,
     ) -> None:
         self.root = root
