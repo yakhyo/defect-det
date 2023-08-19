@@ -42,19 +42,23 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    <p><b>Figure 3</b>. UNet model architecture.</p>
    </div>
 
-   - **Why not SOTA model❓**:
-     1. **Data and Resource**: Using SOTA model we might get better results on certain tasks. Hence, SOTA models come
-        with complex structure and different training strategies which leads to better performance. However, they require
-        a significant amount of labeled training data and computation power for training. If there is a large dataset and
-        powerful hardware, training a complex model might be feasible.
-     2. **Time**: Training and fine-tuning a state-of-the-art model can be time-consuming. For this reason I did not
-        choose current SOTA model for this task.
+    - **Why not SOTA model❓**:
+        1. **Data and Resource**: Using SOTA model we might get better results on certain tasks. Hence, SOTA models come
+           with complex structure and different training strategies which leads to better performance. However, they
+           require
+           a significant amount of labeled training data and computation power for training. If there is a large dataset
+           and
+           powerful hardware, training a complex model might be feasible.
+        2. **Time**: Training and fine-tuning a state-of-the-art model can be time-consuming. For this reason I did not
+           choose current SOTA model for this task.
 
-   - **Why did you choose UNet❓**:
-     1. **Limited Data**: There size of given labeled data is small. Therefore, using simple model and applying some
-        techniques such as augmentation, regularization can help to improve the mIOU.
-     2. **Computational Resources**: Simple models generally faster to train and require fewer computational resources.
-     3. **Debugging**: Simple models are good start to understand how different techniques affect performance of the model.
+    - **Why did you choose UNet❓**:
+        1. **Limited Data**: There size of given labeled data is small. Therefore, using simple model and applying some
+           techniques such as augmentation, regularization can help to improve the mIOU.
+        2. **Computational Resources**: Simple models generally faster to train and require fewer computational
+           resources.
+        3. **Debugging**: Simple models are good start to understand how different techniques affect performance of the
+           model.
 
 
 2. **Preprocessing:** #TODO
@@ -62,17 +66,19 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 ### Training
 
 1. **Loss Function:**
-   Choosing a loss function is a vital point for any deep learning task. There are many loss functions which works
-   perfect for certain datasets but does not work well on custom datasets. Especially, when it comes to real world
-   data there are so many challenges in choosing a loss function due to the distribution of the data and the nature of
-   the data. For instance, Usually **Cross Entropy Loss** used as a default starter for any segmentation task. However,
-   if there is a class imbalance in the data then **Cross Entropy Loss** cannot be the optimal choice.
+   Choosing a loss function is a crucial decision for any deep learning task. While numerous loss functions work
+   perfectly for specific datasets, they might not perform well on custom datasets. Particularly, when dealing with
+   real-world data, numerous challenges arise in selecting an appropriate loss function due to the data's distribution
+   and nature.
 
-   If there is a class imbalance problem in the dataset then the following losses are the best option. So I implemented
-   the following losses and compared the model performance for each loss respectively.
-    - **Dice Loss** [[paper](https://arxiv.org/abs/1707.03237v3)]
-    - Dice + Cross Entropy Loss
-    - **Focal Loss** [[paper](https://arxiv.org/abs/1708.02002v2)]
+   For instance, Cross Entropy Loss is commonly used as a default choice for segmentation tasks. However, if a class
+   imbalance exists in the data, Cross Entropy Loss may not be the optimal selection. When encountering a class
+   imbalance issue in the dataset, the following loss functions offer better alternatives. Therefore, I implemented these loss
+   functions and subsequently compared the model's performance for each of them
+
+- **Dice Loss** [[paper](https://arxiv.org/abs/1707.03237v3)]
+- Dice + Cross Entropy Loss
+- **Focal Loss** [[paper](https://arxiv.org/abs/1708.02002v2)]
 
 2. **Optimizer:**
 

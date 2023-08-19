@@ -126,7 +126,7 @@ def train(opt, model, device):
     val_iou_list = []
     test_iou_list = []
     train_iou_list = []
-    stopper = EarlyStopping(opt.patience)
+    early_stopping = EarlyStopping(opt.patience)
     for epoch in range(start_epoch, opt.epochs):
         model.train()
         epoch_loss = 0
@@ -161,15 +161,14 @@ def train(opt, model, device):
             )
 
         dice_score, dice_loss, val_miou = validate(model, val_loader, device)
-        if stopper(epoch, val_miou):
-            sys.exit(1)
         LOGGER.info(f"VALIDATION: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {val_miou}")
         dice_score, dice_loss, test_miou = validate(model, test_loader, device)
         LOGGER.info(f"TEST: Dice Score: {dice_score:.4f}, Dice Loss: {dice_loss:.4f}, mIOU: {test_miou}")
 
-        train_iou_list.append(epoch_iou/len(train_loader))
+        train_iou_list.append(epoch_iou / len(train_loader))
         val_iou_list.append(val_miou)
         test_iou_list.append(test_miou)
+
         scheduler.step(epoch)
         ckpt = {
             "epoch": epoch,
@@ -178,9 +177,13 @@ def train(opt, model, device):
             "optimizer": optimizer.state_dict(),
         }
         torch.save(ckpt, last)
-        if best_score < dice_score:
-            best_score = max(best_score, dice_score)
+        if best_score < test_miou:
+            best_score = max(best_score, test_miou)
             torch.save(ckpt, best)
+
+        if early_stopping(epoch, val_miou):
+            # early stopping call
+            break
 
     save_log = {
         "val_iou": val_iou_list,
@@ -226,7 +229,7 @@ def parse_opt():
     parser.add_argument("--save-dir", type=str, default="weights", help="Directory to save weights")
 
     parser.add_argument("--epochs", type=int, default=100, help="Number of epochs, default: 100")
-    parser.add_argument("--patience", type=int, default=10, help="Number of patience to stop, default: 10")
+    parser.add_argument("--patience", type=int, default=30, help="Number of patience to stop, default: 30")
     parser.add_argument("--batch-size", type=int, default=2, help="Batch size, default: 12")
     parser.add_argument("--loss", type=str, default="dice", help="Loss function, available: dice, dice_ce, focal")
     parser.add_argument("--lr", type=float, default=1e-5, help="Learning rate, default: 1e-5")

@@ -147,13 +147,13 @@ class AverageMeter:
 
 class EarlyStopping:
     # Simple early stopper
-    def __init__(self, patience=30):
+    def __init__(self, patience=10):
         self.best_fitness = 0.0  # i.e. mIOU
         self.best_epoch = 0
         self.patience = patience or float('inf')  # epochs to wait after fitness stops improving to stop
 
     def __call__(self, epoch, fitness):
-        if fitness >= self.best_fitness:  # >= 0 to allow for early zero-fitness stage of training
+        if fitness >= self.best_fitness:
             self.best_epoch = epoch
             self.best_fitness = fitness
         delta = epoch - self.best_epoch  # epochs without improvement
