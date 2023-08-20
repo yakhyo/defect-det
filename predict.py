@@ -8,7 +8,7 @@ from inference import resize
 model = UNet(in_channels=3, out_channels=7)
 
 # Load the pre-trained model
-ckpt = torch.load("./weights/base_best_cropped.pt")
+ckpt = torch.load("./weights/base_best_cross_entropy.pt")
 model.load_state_dict(ckpt["model"].float().state_dict())
 model.eval()  # Set the model to evaluation mode
 
@@ -19,10 +19,14 @@ transform = transforms.Compose([
 ])
 
 # Load and preprocess the input image
-input_image = Image.open("./data/test/images/122021417432646-49_5_side2.jpg")
-if ckpt["use_crop"]:
+input_image = Image.open("./data/test/images/122021417103241-37_5_side2.jpg")
+gt_mask = Image.open("./data/test/masks/122021417103241-37_5_side2.png")
+if ckpt.get("use_crop", False):
     input_image = input_image.crop((840, 512, 1640, 1312))
+    gt_mask = gt_mask.crop((840, 512, 1640, 1312))
 input_image = resize(input_image)
+gt_mask = resize(gt_mask)
+
 input_tensor = transform(input_image)
 input_tensor = input_tensor.unsqueeze(0)  # Add batch dimension
 
@@ -76,21 +80,27 @@ import matplotlib.pyplot as plt
 plt.figure(figsize=(15, 5))  # Adjust the figure size as needed
 
 # Input Image
-plt.subplot(1, 3, 1)
+plt.subplot(1, 4, 1)
 plt.imshow(input_image)
 plt.title("Input Image")
 plt.axis("off")
 
 # Color-Coded Mask
-plt.subplot(1, 3, 2)
+plt.subplot(1, 4, 2)
 plt.imshow(color_coded_mask_image)
 plt.title("Predicted Mask")
 plt.axis("off")
 
 # Overlay Image
-plt.subplot(1, 3, 3)
+plt.subplot(1, 4, 3)
 plt.imshow(overlay)
 plt.title("Overlay Image")
+plt.axis("off")
+
+# Overlay Image
+plt.subplot(1, 4, 4)
+plt.imshow(gt_mask)
+plt.title("GT mask")
 plt.axis("off")
 
 plt.tight_layout()

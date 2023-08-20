@@ -1,11 +1,4 @@
-### To Do List:
-
-- TTA
-- Class Weights
-- Focal Loss
--
-
-# Defect Detection using Segmentation
+# Defect Detection
 
 <div align="center">
 <img src="./assets/readme/mask_image.png" width="800px">
@@ -18,8 +11,6 @@ This documentation outlines the work I have done to address the defect detection
 The goal of this task was to develop a model capable of detecting defect regions in images.
 This document provides an overview of the approach, methodology, results, and the tools utilized throughout the process.
 Step-by-step approaches to improve the model performance in terms of Mean IOU is provided.
-
-## Task Overview
 
 ## Approach
 
@@ -67,9 +58,6 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         3. **Debugging**: Simple models are good start to understand how different techniques affect performance of the
            model.
 
-
-2. **Preprocessing:** #TODO
-
 ### Training
 
 1. **Loss Function:**
@@ -110,7 +98,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 
 3. **Training Procedure:**
     - Number of Epochs: 100
-    - Batch size: 2
+    - Batch size: 2 (due to the limited computing power)
     - Early Stopping Patience: 30
     - Divided the training data into `train` and `validation` set to monitor the models performance gain for
       benchmarking purposes.
@@ -125,48 +113,88 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 
 ### Quantitative and Qualitative Results
 
-1. Base model:
-   - Loss Function: Dice Loss + Cross Entropy Loss
-   - Default Augmentation
-   - mIOU:
-     - Test: `0.3262`
-     - Val: `0.3276`
-     - Train: `0.3614` 
-     <details>
-      <summary><b>click here to see the samples</b></summary>
-        <div align="center">
-        <img src="./assets/base_model/img1.png">
-        <p>Inference result on a test image(<code>122021417432646-49_5_side2.jpg</code>)</p>
-        <img src="./assets/base_model/graph.png" width="500">
-        </div>
-    </details>
+1. Baseline model:
+    - Loss Function: Dice Loss + Cross Entropy Loss
+    - Default Augmentation
+    - mIOU:
+        - Test: `0.3262`
+        - Val: `0.3276`
+        - Train: `0.3614`
+   <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model/graph.png" width="500">
+      </div>
+   </details>
 
-2. Base model **cropped**:
-   - Loss Function: Dice Loss + Cross Entropy Loss
-   - Default Augmentation
-   - ROI (Region of Interest) cropped first then resized to the size of input image
-   - mIOU:
-     - Test: `0.2923`
-     - Val: `0.3195`
-     - Train: `0.3667`
-     <details>
-      <summary><b>click here to see the samples</b></summary>
-        <div align="center">
-        <img src="./assets/base_model_cropped/img1.png">
-        <p>Inference result on a test image(<code>122021417432646-49_5_side2.jpg</code>)</p>
-        <img src="./assets/base_model_cropped/graph.png" width="500">
-        <p></p>
-        </div>
-    </details>
-
+2. Baseline model + Image ROI **cropped**:
+    - Loss Function: Dice Loss + Cross Entropy Loss
+    - Default Augmentation
+    - ROI (Region of Interest) cropped first then resized to the size of input image
+    - mIOU:
+        - Test: `0.2923`
+        - Val: `0.3195`
+        - Train: `0.3667`
+   <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_cropped/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cropped/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cropped/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cropped/graph.png" width="500">
+      </div>
+   </details>
+3. Baseline model + Dice Loss only - (**model did not converge**):
+    - Loss Function: Dice Loss
+    - Default Augmentation
+4. Baseline model + Cross Entropy Loss:
+    - Loss Function: Cross Entropy Loss
+    - Default Augmentation
+    - mIOU:
+        - Test:`0.3260`
+        - Val: `0.3291`
+        - Train: `0.3537`
+   <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_cross_entropy/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cross_entropy/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cross_entropy/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cross_entropy/graph.png" width="500">
+      </div>
+   </details>
+5. Baseline model + Cross Entropy Loss:
+    - Loss Function: Cross Entropy Loss
+    - Default Augmentation + **Random Perspective**
+    - mIOU:
+        - Test:
+        - Val: 
+        - Train: 
 
 ## Conclusion
 
-Summarize the key points of the work done for the damage segmentation task. Highlight the strengths of the approach and
-discuss any challenges faced during the process.
+I have implemented tested followings:
+
+- [x] baseline UNet
+- [x] Dice Loss
+- [x] Dice + Cross Entropy Loss
+- [x] Focal Loss
+- [x] Training with ROI cropping
+- [x] Training with `RandomPerspective`
 
 ## Future Improvements
 
-- Class weights
-- Applying TTA (Test Time Augmentation)
-- ROI cropping 
+- [x] TTA - Test Time Augmentation
+- [x] Custom class weights for instance categories

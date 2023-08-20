@@ -5,6 +5,7 @@ import random
 import numpy as np
 import torch
 from torchvision.transforms import functional as F
+from torchvision import transforms as T
 
 from enum import Enum
 
@@ -72,6 +73,7 @@ class TrainTransform:
             transforms.append(RandomHorizontalFlip(hflip_prop))
         transforms.extend(
             [
+                RandomPerspective(),
                 PILToTensor(),
                 ConvertImageDtype(torch.float),
                 Normalize(mean=mean, std=std)
@@ -90,6 +92,16 @@ class Normalize:
 
     def __call__(self, image, target):
         image = F.normalize(image, mean=self.mean, std=self.std)
+        return image, target
+
+
+class RandomPerspective:
+    def __init__(self):
+        self.func = T.RandomPerspective()
+
+    def __call__(self, image, target):
+        image = self.func(image)
+        target = self.func(target)
         return image, target
 
 

@@ -31,7 +31,7 @@ def sigmoid_focal_loss(
     Returns:
         torch.Tensor
     """
-    probs = torch.softmax(inputs, dim=1)
+    probs = torch.sigmoid(inputs)
     targets = F.one_hot(targets, inputs.shape[1]).permute(0, 3, 1, 2)
 
     if not include_background:
