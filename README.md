@@ -1,3 +1,10 @@
+### To Do List:
+
+- TTA
+- Class Weights
+- Focal Loss
+-
+
 # Defect Detection using Segmentation
 
 <div align="center">
@@ -73,7 +80,8 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 
    For instance, Cross Entropy Loss is commonly used as a default choice for segmentation tasks. However, if a class
    imbalance exists in the data, Cross Entropy Loss may not be the optimal selection. When encountering a class
-   imbalance issue in the dataset, the following loss functions offer better alternatives. Therefore, I implemented these loss
+   imbalance issue in the dataset, the following loss functions offer better alternatives. Therefore, I implemented
+   these loss
    functions and subsequently compared the model's performance for each of them
 
 - **Dice Loss** [[paper](https://arxiv.org/abs/1707.03237v3)]
@@ -115,13 +123,42 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
     - Dice Score.
     - Mean Intersection Over Union (mIOU).
 
-2. **Quantitative Results:** Present the quantitative results achieved on both the validation and test datasets. Include
-   average metrics and metrics for each class if applicable.
+### Quantitative and Qualitative Results
 
-### Qualitative Results
+1. Base model:
+   - Loss Function: Dice Loss + Cross Entropy Loss
+   - Default Augmentation
+   - mIOU:
+     - Test: `0.3262`
+     - Val: `0.3276`
+     - Train: `0.3614` 
+     <details>
+      <summary><b>click here to see the samples</b></summary>
+        <div align="center">
+        <img src="./assets/base_model/img1.png">
+        <p>Inference result on a test image(<code>122021417432646-49_5_side2.jpg</code>)</p>
+        <img src="./assets/base_model/graph.png" width="500">
+        </div>
+    </details>
 
-1. **Visualizations:** Showcase visual examples of the model's predictions. Compare the predicted segmentation masks
-   with the ground truth to demonstrate the quality of the segmentations.
+2. Base model **cropped**:
+   - Loss Function: Dice Loss + Cross Entropy Loss
+   - Default Augmentation
+   - ROI (Region of Interest) cropped first then resized to the size of input image
+   - mIOU:
+     - Test: 
+     - Val: 
+     - Train:  
+     <details>
+      <summary><b>click here to see the samples</b></summary>
+        <div align="center">
+        <img src="./assets/base_model_copped/img1.png">
+        <p>Inference result on a test image(<code>122021417432646-49_5_side2.jpg</code>)</p>
+        <img src="./assets/base_model_cropped/graph.png" width="500">
+        <p></p>
+        </div>
+    </details>
+
 
 ## Conclusion
 
@@ -129,7 +166,6 @@ Summarize the key points of the work done for the damage segmentation task. High
 discuss any challenges faced during the process.
 
 ## Future Improvements
-
 
 - Class weights
 - Applying TTA (Test Time Augmentation)

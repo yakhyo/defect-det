@@ -8,6 +8,8 @@ import torch
 from PIL import Image, ImageOps
 from models import UNet
 
+from torchvision import transforms
+
 
 def preprocess(image, is_mask):
     """Preprocess image and mask"""
@@ -64,10 +66,6 @@ def predict(model, image, device, opt):
     model.eval()
     model.to(device)
 
-    # Preprocess
-    image = resize(image, opt.image_size)
-    image = torch.from_numpy(preprocess(image, is_mask=False))
-    image = image.unsqueeze(0)
     image = image.to(device, dtype=torch.float32)
 
     with torch.no_grad():
@@ -77,7 +75,7 @@ def predict(model, image, device, opt):
         else:
             mask = torch.sigmoid(output) > opt.conf_thresh
 
-    return mask[0].long().squeeze().numpy()
+    return mask.squeeze(0).long().numpy()
 
 
 def mask_to_image(mask: np.ndarray):
@@ -89,9 +87,10 @@ def mask_to_image(mask: np.ndarray):
 
 
 def parse_opt():
-    parser = argparse.ArgumentParser(description="UNet inference arguments")
+    parser = argparse.ArgumentParser(description="Inference Arguments")
     parser.add_argument("--weights", default="./weights/last.pt", help="Path to weight file (default: last.pt)")
-    parser.add_argument("--input", type=str, default="./data/images/122011114500705_5_side2.jpg", help="Path to input image")
+    parser.add_argument("--input", type=str, default="./data/images/122011114500705_5_side2.jpg",
+                        help="Path to input image")
     parser.add_argument("--image-size", type=int, default=512, help="Input image size, default: 512")
     parser.add_argument("--use-crop", action="store_true", help="Use cropping ROI for training and testing")
     parser.add_argument("--output", default="output.jpg", help="Path to save mask image")
@@ -117,18 +116,22 @@ def main(opt):
     if opt.use_crop:
         image = image.crop((840, 512, 1640, 1312))
 
-    output = predict(model=model, image=image, device=device, opt=opt)
-    # plt.imshow(output)
-    # plt.show()
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),  # Normalize using ImageNet values
+    ])
+
+    image = resize(image, opt.image_size)
+    input_tensor = transform(image)
+    input_tensor = input_tensor.unsqueeze(0)
+    output = predict(model=model, image=input_tensor, device=device, opt=opt)
 
     # Convert mask to image
     result = mask_to_image(output)
-    print(result.size)
     result.save(opt.output)
 
     # Visualize
     if opt.view:
-        image = resize(image, opt.image_size)
         plot_img_and_mask(image, output)
 
 

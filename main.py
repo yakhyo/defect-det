@@ -147,6 +147,7 @@ def train(opt, model, device):
             "best_score": best_score,
             "model": deepcopy(model).half(),
             "optimizer": optimizer.state_dict(),
+            "use_crop": opt.use_crop
         }
         torch.save(ckpt, last)
         if best_score < test_miou:
@@ -233,8 +234,11 @@ def main(opt):
     os.makedirs(opt.save_dir, exist_ok=True)
     if opt.mode == "test":
         assert os.path.isfile(opt.weights), f"show the path to the trained model, opt.weight: {opt.weight}"
-        _, _, test_loader = get_dataset(opt)
+
         ckpt = torch.load(opt.weights, map_location=device)
+        if ckpt["use_crop"]:
+            opt.use_crop = True
+        _, _, test_loader = get_dataset(opt)
         model.load_state_dict(ckpt["model"].float().state_dict())
         dice_score, dice_loss, miou = validate(model, test_loader, device)
         LOGGER.info(f"Dice score: {dice_score}, Dice loss: {dice_loss}, mIOU: {miou}")
