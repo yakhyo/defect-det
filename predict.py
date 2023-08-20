@@ -8,7 +8,7 @@ from inference import resize
 model = UNet(in_channels=3, out_channels=7)
 
 # Load the pre-trained model
-ckpt = torch.load("./weights/base_best.pt")
+ckpt = torch.load("./weights/base_best_cropped.pt")
 model.load_state_dict(ckpt["model"].float().state_dict())
 model.eval()  # Set the model to evaluation mode
 
@@ -20,7 +20,8 @@ transform = transforms.Compose([
 
 # Load and preprocess the input image
 input_image = Image.open("./data/test/images/122021417432646-49_5_side2.jpg")
-
+if ckpt["use_crop"]:
+    input_image = input_image.crop((840, 512, 1640, 1312))
 input_image = resize(input_image)
 input_tensor = transform(input_image)
 input_tensor = input_tensor.unsqueeze(0)  # Add batch dimension

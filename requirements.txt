@@ -3,3 +3,6 @@ imgviz
 pillow
 matplotlib
 tqdm
+torch
+torchvision
+torchaudio

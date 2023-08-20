@@ -146,13 +146,13 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    - Default Augmentation
    - ROI (Region of Interest) cropped first then resized to the size of input image
    - mIOU:
-     - Test: 
-     - Val: 
-     - Train:  
+     - Test: `0.2923`
+     - Val: `0.3195`
+     - Train: `0.3667`
      <details>
       <summary><b>click here to see the samples</b></summary>
         <div align="center">
-        <img src="./assets/base_model_copped/img1.png">
+        <img src="./assets/base_model_cropped/img1.png">
         <p>Inference result on a test image(<code>122021417432646-49_5_side2.jpg</code>)</p>
         <img src="./assets/base_model_cropped/graph.png" width="500">
         <p></p>

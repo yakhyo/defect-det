@@ -113,7 +113,7 @@ def main(opt):
 
     # Load & Inference
     image = Image.open(opt.input)
-    if opt.use_crop:
+    if ckpt["use_crop"]:
         image = image.crop((840, 512, 1640, 1312))
 
     transform = transforms.Compose([
