@@ -233,7 +233,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    </details>
 ## Conclusion
 
-I have implemented tested followings:
+In this project I have implemented followings:
 
 - [x] baseline UNet
 - [x] Dice Loss
@@ -246,3 +246,4 @@ I have implemented tested followings:
 
 - [x] TTA - Test Time Augmentation
 - [x] Custom class weights for instance categories
+      
