@@ -12,7 +12,7 @@ from enum import Enum
 from utils import LOGGER
 
 
-class LossReduction(Enum):
+class LossReduction:
     """Alias for loss reduction"""
 
     NONE = "none"
