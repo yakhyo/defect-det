@@ -198,6 +198,18 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2595`
         - Val: `0.2956`
         - Train: `0.4217`
+   <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_adam_di_ce/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce/graph.png" width="500">
+      </div>
+   </details>
 8. Baseline model + Dice Loss + Cross Entropy Loss:
     - Loss Function: Dice + Cross Entropy Loss
     - Default Augmentation
@@ -207,6 +219,18 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2682`
         - Val: `0.3121`
         - Train: `0.4304`
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_adam_di_ce_cropped/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce_cropped/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce_cropped/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce_cropped/graph.png" width="500">
+      </div>
+   </details>
 ## Conclusion
 
 I have implemented tested followings:
