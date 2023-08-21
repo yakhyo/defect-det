@@ -153,10 +153,8 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       <img src="./assets/base_model_cropped/graph.png" width="500">
       </div>
    </details>
-3. Baseline model + Dice Loss only:
-    - Loss Function: Dice Loss
-    - Default Augmentation
-4. Baseline model + Cross Entropy Loss:
+
+3. Baseline model + Cross Entropy Loss:
     - Loss Function: Cross Entropy Loss
     - Default Augmentation
     - mIOU:
@@ -175,14 +173,20 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       <img src="./assets/base_model_cross_entropy/graph.png" width="500">
       </div>
    </details>
-5. Baseline model + Cross Entropy Loss:
+4. Baseline model + Cross Entropy Loss:
     - Loss Function: Cross Entropy Loss
     - Default Augmentation + **Random Perspective**
     - mIOU:
         - Test: `0.1427`
         - Val: `0.1691`
         - Train: `0.1572`
-6. Baseline model + Cross Entropy Loss:
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_aug/graph.png" width="500">
+      </div>
+   </details>
+5. Baseline model + Cross Entropy Loss:
     - Loss Function: Cross Entropy Loss
     - Default Augmentation + **Random Perspective**
     - ROI cropping
@@ -190,7 +194,13 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.1421`
         - Val: `0.1785`
         - Train: `0.1646`
-7. Baseline model + Dice Loss + Cross Entropy Loss:
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_aug_cropped/graph.png" width="500">
+      </div>
+   </details>
+6. Baseline model + Dice Loss + Cross Entropy Loss:
     - Loss Function: Dice + Cross Entropy Loss
     - Default Augmentation
     - Optimizer: Adam
@@ -210,7 +220,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       <img src="./assets/base_model_adam_di_ce/graph.png" width="500">
       </div>
    </details>
-8. Baseline model + Dice Loss + Cross Entropy Loss:
+7. Baseline model + Dice Loss + Cross Entropy Loss:
     - Loss Function: Dice + Cross Entropy Loss
     - Default Augmentation
     - Optimizer: Adam
@@ -231,6 +241,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       <img src="./assets/base_model_adam_di_ce_cropped/graph.png" width="500">
       </div>
    </details>
+
 ## Conclusion
 
 I have implemented tested followings:
