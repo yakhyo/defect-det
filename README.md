@@ -190,14 +190,23 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.1421`
         - Val: `0.1785`
         - Train: `0.1646`
-7. Baseline model + Cross Entropy Loss:
-    - Loss Function: Cross Entropy Loss
+7. Baseline model + Dice Loss + Cross Entropy Loss:
+    - Loss Function: Dice + Cross Entropy Loss
     - Default Augmentation
     - Optimizer: Adam
     - mIOU:
-        - Test:
-        - Val: 
-        - Train: 
+        - Test: `0.2595`
+        - Val: `0.2956`
+        - Train: `0.4217`
+8. Baseline model + Dice Loss + Cross Entropy Loss:
+    - Loss Function: Dice + Cross Entropy Loss
+    - Default Augmentation
+    - Optimizer: Adam
+    - ROI cropping
+    - mIOU:
+        - Test: `0.2682`
+        - Val: `0.3121`
+        - Train: `0.4304`
 ## Conclusion
 
 I have implemented tested followings:
