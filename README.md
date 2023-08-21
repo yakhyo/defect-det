@@ -153,7 +153,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       <img src="./assets/base_model_cropped/graph.png" width="500">
       </div>
    </details>
-3. Baseline model + Dice Loss only - (**model did not converge**):
+3. Baseline model + Dice Loss only:
     - Loss Function: Dice Loss
     - Default Augmentation
 4. Baseline model + Cross Entropy Loss:
@@ -179,7 +179,15 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
     - Loss Function: Cross Entropy Loss
     - Default Augmentation + **Random Perspective**
     - mIOU:
-        - Test:
+        - Test: `0.1427`
+        - Val: `0.1691`
+        - Train: `0.1572`
+6. Baseline model + Cross Entropy Loss:
+    - Loss Function: Cross Entropy Loss
+    - Default Augmentation + **Random Perspective**
+    - ROI cropping
+    - mIOU:
+        - Test: 
         - Val: 
         - Train: 
 
