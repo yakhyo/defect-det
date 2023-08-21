@@ -73,8 +73,8 @@ def train(opt, model, device):
 
     # Optimizers & LR Scheduler & Mixed Precision & Loss
     parameters = add_weight_decay(model, weight_decay=opt.weight_decay)
-    # optimizer = torch.optim.Adam(parameters, lr=opt.lr, weight_decay=1e-8)
-    optimizer = torch.optim.RMSprop(parameters, lr=opt.lr, weight_decay=1e-8, momentum=0.9)
+    optimizer = torch.optim.Adam(parameters, lr=opt.lr, weight_decay=1e-8)
+    # optimizer = torch.optim.RMSprop(parameters, lr=opt.lr, weight_decay=1e-8, momentum=0.9)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", patience=5)
     grad_scaler = torch.cuda.amp.GradScaler(enabled=opt.amp)
     criterion = DiceCELoss()

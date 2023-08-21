@@ -64,6 +64,7 @@ class TrainTransform:
 
     def __init__(
             self,
+            use_random_perspective: bool = False,
             hflip_prop: float = 0.5,
             mean=(0.485, 0.456, 0.406),
             std=(0.229, 0.224, 0.225)
@@ -71,9 +72,10 @@ class TrainTransform:
         transforms = []
         if hflip_prop > 0:
             transforms.append(RandomHorizontalFlip(hflip_prop))
+        if use_random_perspective:
+            transforms.append(RandomPerspective())
         transforms.extend(
             [
-                RandomPerspective(),
                 PILToTensor(),
                 ConvertImageDtype(torch.float),
                 Normalize(mean=mean, std=std)

@@ -187,10 +187,17 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
     - Default Augmentation + **Random Perspective**
     - ROI cropping
     - mIOU:
-        - Test: 
+        - Test: `0.1421`
+        - Val: `0.1785`
+        - Train: `0.1646`
+7. Baseline model + Cross Entropy Loss:
+    - Loss Function: Cross Entropy Loss
+    - Default Augmentation
+    - Optimizer: Adam
+    - mIOU:
+        - Test:
         - Val: 
         - Train: 
-
 ## Conclusion
 
 I have implemented tested followings:
