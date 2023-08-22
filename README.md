@@ -120,6 +120,10 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.3262`
         - Val: `0.3276`
         - Train: `0.3614`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best.pt
+      ```
    <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -141,6 +145,10 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2923`
         - Val: `0.3195`
         - Train: `0.3667`
+   - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_cropped.pt
+      ```
    <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -161,6 +169,10 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test:`0.3260`
         - Val: `0.3291`
         - Train: `0.3537`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_cross_entropy.pt
+      ```
    <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -194,6 +206,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.1421`
         - Val: `0.1785`
         - Train: `0.1646`
+
     <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -208,6 +221,10 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2595`
         - Val: `0.2956`
         - Train: `0.4217`
+   - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_adam_di_ce.pt
+      ```
    <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -229,6 +246,36 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2682`
         - Val: `0.3121`
         - Train: `0.4304`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_adam_di_ce_cropped.pt
+      ```
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_adam_di_ce_cropped/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce_cropped/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce_cropped/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_adam_di_ce_cropped/graph.png" width="500">
+      </div>
+   </details>
+
+8Baseline model + Focal Loss:
+    - Loss Function: Focal Loss
+    - Default Augmentation
+    - Optimizer: Adam
+    - ROI cropping
+    - mIOU:
+        - Test: `0.2662`
+        - Val: 
+        - Train: 
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_focal.pt
+      ```
     <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
