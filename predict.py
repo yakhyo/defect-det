@@ -8,7 +8,7 @@ from inference import resize
 model = UNet(in_channels=3, out_channels=7)
 
 # Load the pre-trained model
-ckpt = torch.load("./weights/base_best_adam_di_ce_cropped.pt")
+ckpt = torch.load("./weights/base_best_focal.pt")
 model.load_state_dict(ckpt["model"].float().state_dict())
 model.eval()  # Set the model to evaluation mode
 

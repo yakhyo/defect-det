@@ -263,7 +263,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       </div>
    </details>
 
-8Baseline model + Focal Loss:
+8. Baseline model + Focal Loss:
     - Loss Function: Focal Loss
     - Default Augmentation
     - Optimizer: Adam
@@ -274,7 +274,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Train: 
     - To Reproduce:
       ```
-      python main.py --mode test --weights weights/base_best_focal.pt
+      python main.py --mode test --weights weights/base_best_.pt
       ```
     <details>
     <summary><b>click here to see the samples</b></summary>
