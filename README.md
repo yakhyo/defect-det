@@ -266,26 +266,76 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 8. Baseline model + Focal Loss:
     - Loss Function: Focal Loss
     - Default Augmentation
-    - Optimizer: Adam
-    - ROI cropping
+    - Optimizer: RMPSprop (defaul)
     - mIOU:
-        - Test: `0.2662`
-        - Val: 
-        - Train: 
+        - Test: `0.2548`
+        - Val: `0.2960`
+        - Train: `0.2725`
     - To Reproduce:
       ```
-      python main.py --mode test --weights weights/base_best_.pt
+      python main.py --mode test --weights weights/base_best_focal.pt
       ```
     <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
-      <img src="./assets/base_model_adam_di_ce_cropped/img1.png">
+      <img src="./assets/base_model_focal/img1.png">
       <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
-      <img src="./assets/base_model_adam_di_ce_cropped/img2.png">
+      <img src="./assets/base_model_focal/img2.png">
       <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
-      <img src="./assets/base_model_adam_di_ce_cropped/img3.png">
+      <img src="./assets/base_model_focal/img3.png">
       <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
-      <img src="./assets/base_model_adam_di_ce_cropped/graph.png" width="500">
+      <img src="./assets/base_model_focal/graph.png" width="500">
+      </div>
+   </details>
+
+9. Baseline model + Focal Loss:
+    - Loss Function: Focal Loss
+    - Default Augmentation
+    - Optimizer: Adam
+    - mIOU:
+        - Test: `0.2662`
+        - Val: `0.2990`
+        - Train: `0.3815`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_focal_adam.pt
+      ```
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_focal_adam/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_focal_adam/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_focal_adam/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_focal_adam/graph.png" width="500">
+      </div>
+   </details>
+
+10. Baseline model + Focal Loss:
+    - Loss Function: Focal Loss
+    - Default Augmentation
+    - Optimizer: RMSprop (default)
+    - ROI Cropping
+    - mIOU:
+        - Test: `0.2725`
+        - Val: `0.3004`
+        - Train: `0.2985`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_focal_cropped.pt
+      ```
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_focal_cropped/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_focal_cropped/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_focal_cropped/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_focal_cropped/graph.png" width="500">
       </div>
    </details>
 
