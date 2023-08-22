@@ -77,7 +77,7 @@ def train(opt, model, device):
     # optimizer = torch.optim.RMSprop(parameters, lr=opt.lr, weight_decay=1e-8, momentum=0.9)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", patience=5)
     grad_scaler = torch.cuda.amp.GradScaler(enabled=opt.amp)
-    criterion = DiceCELoss()
+    criterion = FocalLoss()
 
     # Resume
     if pretrained:
@@ -103,7 +103,7 @@ def train(opt, model, device):
         model.train()
         epoch_loss = 0
         epoch_iou = 0
-        LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "mIOU"))
+        LOGGER.info(("\n" + "%12s" * 4) % ("Epoch", "GPU Mem", "Focal Loss", "mIOU"))
         progress_bar = tqdm(train_loader, total=len(train_loader))
         for image, target in progress_bar:
             image = image.to(device)
@@ -111,7 +111,7 @@ def train(opt, model, device):
 
             with torch.cuda.amp.autocast(enabled=opt.amp):
                 output = model(image)
-                loss, losses = criterion(output, target)
+                loss = criterion(output, target)
                 iou = jaccard_index(output, target, num_classes=7)
 
             optimizer.zero_grad(set_to_none=True)
@@ -128,8 +128,8 @@ def train(opt, model, device):
             epoch_iou += iou
             mem = f"{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G"  # (GB)
             progress_bar.set_description(
-                ("%12s" * 2 + "%12.4g" * 4) % (
-                    f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss, iou)
+                ("%12s" * 2 + "%12.4g" * 2) % (
+                    f"{epoch + 1}/{opt.epochs}", mem,  loss, iou)
             )
 
         dice_score, dice_loss, val_miou = validate(model, val_loader, device)
