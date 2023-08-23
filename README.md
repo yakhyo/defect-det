@@ -341,6 +341,8 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 
 ## Conclusion
 
+- [click here to see class activation maps for "CLAMP" class](./grad_cam_results.ipynb)
+
 | Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective |
 |-------------|---------------|-----------|--------------|------------|------------|-------------------|
 | exp1        | Dice + CE     | RMSprop   | False        | **0.3262** | 0.3276     | False             |
