@@ -145,10 +145,10 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2923`
         - Val: `0.3195`
         - Train: `0.3667`
-   - To Reproduce:
-      ```
-      python main.py --mode test --weights weights/base_best_cropped.pt
-      ```
+    - To Reproduce:
+       ```
+       python main.py --mode test --weights weights/base_best_cropped.pt
+       ```
    <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -221,10 +221,10 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Test: `0.2595`
         - Val: `0.2956`
         - Train: `0.4217`
-   - To Reproduce:
-      ```
-      python main.py --mode test --weights weights/base_best_adam_di_ce.pt
-      ```
+    - To Reproduce:
+       ```
+       python main.py --mode test --weights weights/base_best_adam_di_ce.pt
+       ```
    <details>
     <summary><b>click here to see the samples</b></summary>
       <div align="center">
@@ -340,6 +340,19 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    </details>
 
 ## Conclusion
+
+| Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective |
+|-------------|---------------|-----------|--------------|------------|------------|-------------------|
+| exp1        | Dice + CE     | RMSprop   | False        | **0.3262** | 0.3276     | False             |
+| exp2        | Dice + CE     | RMSprop   | True         | 0.2923     | 0.3195     | False             |
+| exp3        | CE            | RMSprop   | False        | 0.3260     | **0.3291** | False             |
+| exp4        | CE            | RMSprop   | False        | 0.1427     | 0.1691     | True              |
+| exp5        | CE            | RMSprop   | True         | 0.1421     | 0.1785     | True              |
+| exp6        | Dice + CE     | Adam      | False        | 0.2595     | 0.2956     | False             |
+| exp7        | Dice + CE     | Adam      | True         | 0.2682     | 0.3121     | False             |
+| exp8        | Focal         | RMSprop   | False        | 0.2548     | 0.2960     | False             |
+| exp9        | Focal         | Adam      | False        | 0.2662     | 0.2990     | False             |
+| exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             |
 
 In this project I have implemented followings:
 
