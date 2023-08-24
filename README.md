@@ -345,7 +345,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 
 | Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective |
 |-------------|---------------|-----------|--------------|------------|------------|-------------------|
-| exp1        | Dice + CE     | RMSprop   | False        | **0.3262** | 0.3276     | False             |
+| exp1        | Dice + CE     | RMSprop   | False        | **0.3394** | 0.3244     | False             |
 | exp2        | Dice + CE     | RMSprop   | True         | 0.2923     | 0.3195     | False             |
 | exp3        | CE            | RMSprop   | False        | 0.3260     | **0.3291** | False             |
 | exp4        | CE            | RMSprop   | False        | 0.1427     | 0.1691     | True              |
