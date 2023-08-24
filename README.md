@@ -117,9 +117,9 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
     - Loss Function: Dice Loss + Cross Entropy Loss
     - Default Augmentation
     - mIOU:
-        - Test: `0.3262`
-        - Val: `0.3276`
-        - Train: `0.3614`
+        - Test: `0.3393` (current best, latest update)
+        - Val: `0.3244`
+        - Train: `0.3618`
     - To Reproduce:
       ```
       python main.py --mode test --weights weights/base_best.pt
