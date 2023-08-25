@@ -137,7 +137,7 @@ def train(opt, model, device):
 
             with torch.cuda.amp.autocast(enabled=opt.amp):
                 output = model(image)
-                loss, losses = criterion(output, target, class_weights)
+                loss, losses = criterion(output, target)
                 iou = jaccard_index(output, target, num_classes=7)
 
             optimizer.zero_grad(set_to_none=True)
@@ -248,7 +248,8 @@ def main(opt):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     LOGGER.info(f"Device: {device}")
-    model = UNet(in_channels=3, out_channels=opt.num_classes).to(device)
+    # model = UNet(in_channels=3, out_channels=opt.num_classes).to(device)
+    model = DeepLabV3Wrapper(num_classes=opt.num_classes).to(device)
 
     LOGGER.info(
         f"Network:\n"
