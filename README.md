@@ -339,6 +339,33 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       </div>
    </details>
 
+11. Baseline model:
+    - Loss Function: Dice Loss + Cross Entropy Loss
+    - Default Augmentation
+    - Optimizer: RMSprop (default)
+    - Using class weights
+    - mIOU:
+        - Test: `0.3165`
+        - Val: `0.3270`
+        - Train: `0.3451`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/base_best_cls_weights.pt
+      ```
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/base_model_cls_weights/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cls_weights/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cls_weights/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/base_model_cls_weights/graph.png" width="500">
+      </div>
+   </details>
+
+
 ## Conclusion
 ### Updating . . .
 - [click here to see class activation maps for "CLAMP" class](./grad_cam_results.ipynb)
@@ -355,6 +382,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 | exp8        | Focal         | RMSprop   | False        | 0.2548     | 0.2960     | False             |
 | exp9        | Focal         | Adam      | False        | 0.2662     | 0.2990     | False             |
 | exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             |
+| exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False             |
 
 In this project I have implemented followings:
 
@@ -364,9 +392,10 @@ In this project I have implemented followings:
 - [x] Focal Loss
 - [x] Training with ROI cropping
 - [x] Training with `RandomPerspective`
+- [x] Custom class weights for instance categories
 
 ## Future Improvements
 
 - [x] TTA - Test Time Augmentation
-- [x] Custom class weights for instance categories
+
       

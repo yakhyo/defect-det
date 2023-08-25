@@ -3,12 +3,13 @@ import json
 import os
 from copy import deepcopy
 
+import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
-from models import UNet
+from models import UNet, DeepLabV3Wrapper
 from utils.dataset import DamageDataset
 from utils.dice_loss import DiceCELoss, DiceLoss
 from utils.focal_loss import FocalLoss
@@ -25,11 +26,27 @@ from utils.general import (
 from utils import LOGGER
 from utils.random import random_seed
 
+CLASS_DISTRIBUTION = {
+    '__background__': None,
+    'RED': 44,
+    'GOLD': 950,
+    'GLUE': 2617,
+    'STABBED': 129,
+    'CLAMP': 465,
+    'GREY': 129
+}
 
-# def calculate_class_weights(label_dir):
-#     with open("./data/class_names.txt", "r") as f:
-#
-#
+
+def get_class_weights(class_distribution, bg_weight=0.6):
+    total_instances = sum(count for count in class_distribution.values() if count is not None)
+
+    class_weights = {}
+    for class_name, count in class_distribution.items():
+        if count is not None:
+            class_weight = total_instances / (count * len(class_distribution))
+            class_weights[class_name] = class_weight
+    return np.array([bg_weight, *list(class_weights.values())], dtype=np.float32)
+
 
 def get_dataset(opt):
     # Dataset
@@ -71,13 +88,22 @@ def train(opt, model, device):
         LOGGER.info(f"Model ckpt loaded from {opt.weights}")
     model.to(device)
 
-    # Optimizers & LR Scheduler & Mixed Precision & Loss
+    # Initialize optimizer
     parameters = add_weight_decay(model, weight_decay=opt.weight_decay)
     # optimizer = torch.optim.Adam(parameters, lr=opt.lr, weight_decay=1e-8)
     optimizer = torch.optim.RMSprop(parameters, lr=opt.lr, weight_decay=1e-8, momentum=0.9)
+
+    # Initialize learning rate scheduler
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="max", patience=5)
+
+    # Grad Scalar (mixed precision training)
     grad_scaler = torch.cuda.amp.GradScaler(enabled=opt.amp)
+
+    # Initialize loss
     criterion = DiceCELoss()
+
+    # Create class weights tensor, TODO: background weights manually set
+    class_weights = torch.from_numpy(get_class_weights(CLASS_DISTRIBUTION, bg_weight=0.6)).to(device)
 
     # Resume
     if pretrained:
@@ -103,7 +129,7 @@ def train(opt, model, device):
         model.train()
         epoch_loss = 0
         epoch_iou = 0
-        LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss",  "mIOU"))
+        LOGGER.info(("\n" + "%12s" * 6) % ("Epoch", "GPU Mem", "CE Loss", "Dice Loss", "Total Loss", "mIOU"))
         progress_bar = tqdm(train_loader, total=len(train_loader))
         for image, target in progress_bar:
             image = image.to(device)
@@ -111,7 +137,7 @@ def train(opt, model, device):
 
             with torch.cuda.amp.autocast(enabled=opt.amp):
                 output = model(image)
-                loss, losses = criterion(output, target)
+                loss, losses = criterion(output, target, class_weights)
                 iou = jaccard_index(output, target, num_classes=7)
 
             optimizer.zero_grad(set_to_none=True)
@@ -129,7 +155,7 @@ def train(opt, model, device):
             mem = f"{torch.cuda.memory_reserved() / 1E9 if torch.cuda.is_available() else 0:.3g}G"  # (GB)
             progress_bar.set_description(
                 ("%12s" * 2 + "%12.4g" * 4) % (
-                    f"{epoch + 1}/{opt.epochs}", mem,  losses["ce"], losses["dice"], loss,  iou)
+                    f"{epoch + 1}/{opt.epochs}", mem, losses["ce"], losses["dice"], loss, iou)
             )
 
         dice_score, dice_loss, val_miou = validate(model, val_loader, device)
