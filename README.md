@@ -88,7 +88,7 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
         - Advantages: SGD is a classic optimization algorithm. It can work well with carefully tuned learning rates and
           momentum, making it useful for fine-tuning and achieving good generalization.
         - Considerations: It might require more hyperparameter tuning compared to adaptive optimizers like Adam. Using a
-          learning rate schedule (learning rate decay) can be beneficial to stabilize training.
+          learning rate scheduler (learning rate decay) can be beneficial to stabilize training.
     - **Adam Optimizer**:
         - Advantages: Adam (Adaptive Moment Estimation) is an adaptive learning rate optimizer that computes individual
           learning rates for different parameters. It combines the benefits of both the AdaGrad and RMSProp optimizers.
@@ -365,24 +365,49 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
       </div>
    </details>
 
+12. DeepLabV3 (resnet50 backbone):
+    - Loss Function: Dice Loss + Cross Entropy Loss
+    - Default Augmentation
+    - Optimizer: RMSprop (default)
+    - mIOU:
+        - Test: `0.2145`
+        - Val: `0.2457`
+        - Train: `0.3070`
+    - To Reproduce:
+      ```
+      python main.py --mode test --weights weights/deeplabv3_best.pt
+      ```
+    <details>
+    <summary><b>click here to see the samples</b></summary>
+      <div align="center">
+      <img src="./assets/deeplabv3/img1.png">
+      <p align="left">filename: <code>122021417432646-49_5_side2.jpg</code></p>
+      <img src="./assets/deeplabv3/img2.png">
+      <p align="left">filename: <code>122021416441730-28_5_side2.jpg</code></p>
+      <img src="./assets/deeplabv3/img3.png">
+      <p align="left">filename: <code>122021417103241-37_5_side2.jpg</code></p>
+      <img src="./assets/deeplabv3/graph.png" width="500">
+      </div>
+   </details>
 
 ## Conclusion
 ### Updating . . .
 - [click here to see class activation maps for "CLAMP" class](./grad_cam_results.ipynb)
 
-| Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective |
-|-------------|---------------|-----------|--------------|------------|------------|-------------------|
-| exp1        | Dice + CE     | RMSprop   | False        | **0.3394** | 0.3244     | False             |
-| exp2        | Dice + CE     | RMSprop   | True         | 0.2923     | 0.3195     | False             |
-| exp3        | CE            | RMSprop   | False        | 0.3260     | **0.3291** | False             |
-| exp4        | CE            | RMSprop   | False        | 0.1427     | 0.1691     | True              |
-| exp5        | CE            | RMSprop   | True         | 0.1421     | 0.1785     | True              |
-| exp6        | Dice + CE     | Adam      | False        | 0.2595     | 0.2956     | False             |
-| exp7        | Dice + CE     | Adam      | True         | 0.2682     | 0.3121     | False             |
-| exp8        | Focal         | RMSprop   | False        | 0.2548     | 0.2960     | False             |
-| exp9        | Focal         | Adam      | False        | 0.2662     | 0.2990     | False             |
-| exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             |
-| exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False             |
+| Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective | class  weights |
+|-------------|---------------|-----------|--------------|------------|------------|-------------------|----------------|
+| exp1        | Dice + CE     | RMSprop   | False        | **0.3394** | 0.3244     | False             | False          |
+| exp2        | Dice + CE     | RMSprop   | True         | 0.2923     | 0.3195     | False             | False          |
+| exp3        | CE            | RMSprop   | False        | 0.3260     | **0.3291** | False             | False          |
+| exp4        | CE            | RMSprop   | False        | 0.1427     | 0.1691     | True              | False          |
+| exp5        | CE            | RMSprop   | True         | 0.1421     | 0.1785     | True              | False          |
+| exp6        | Dice + CE     | Adam      | False        | 0.2595     | 0.2956     | False             | False          |
+| exp7        | Dice + CE     | Adam      | True         | 0.2682     | 0.3121     | False             | False          |
+| exp8        | Focal         | RMSprop   | False        | 0.2548     | 0.2960     | False             | False          |
+| exp9        | Focal         | Adam      | False        | 0.2662     | 0.2990     | False             | False          |
+| exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             | False          |
+| exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False             | True           |
+| exp12       | Dice + CE     | RMSprop   | False        | 0.2145     | 0.2457     | False             | False          |
 
 In this project I have implemented followings:
 
