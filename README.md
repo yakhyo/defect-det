@@ -2,7 +2,7 @@
 
 <div align="center">
 <img src="./assets/readme/mask_image.png" width="800px">
-<p><b>Figure 1.</b> Sample image and corresponding defect mask</p>
+<p><b>Figure 1.</b> Sample image (on the right) and corresponding defect mask(on the left)</p>
 </div>
 
 ## Introduction
@@ -391,8 +391,17 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
    </details>
 
 ## Conclusion
-### Updating . . .
-- [click here to see class activation maps for "CLAMP" class](./grad_cam_results.ipynb)
+
+In this project, extensive experiments carried out to improve the model's performance on the given dataset. Through out
+the experiments model reached its best performance (**0.3394**) while the following settings:
+
+- Loss: Dice + Cross Entropy Loss
+- Optimizer: RMSprop
+- ROI cropping: False
+- Random Perspective: False
+- CLass weights: False
+
+You can find the whole experiments history in the table given below.
 
 | Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective | class  weights |
 |-------------|---------------|-----------|--------------|------------|------------|-------------------|----------------|
@@ -408,8 +417,9 @@ Step-by-step approaches to improve the model performance in terms of Mean IOU is
 | exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             | False          |
 | exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False             | True           |
 | exp12       | Dice + CE     | RMSprop   | False        | 0.2145     | 0.2457     | False             | False          |
+-*To access weights, please contact: _yakhyo9696@gmail.com_
 
-In this project I have implemented followings:
+**In this project I have used/implemented following libraries/modules:**
 
 - [x] baseline UNet
 - [x] Dice Loss
@@ -418,6 +428,9 @@ In this project I have implemented followings:
 - [x] Training with ROI cropping
 - [x] Training with `RandomPerspective`
 - [x] Custom class weights for instance categories
+- [x] GRAD Cam (to visualize the class activation maps)
+
+[click here to see class activation maps for "CLAMP" class](./grad_cam_results.ipynb)
 
 ## Future Improvements
 
