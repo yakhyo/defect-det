@@ -417,6 +417,7 @@ You can find the whole experiments history in the table given below.
 | exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             | False          |
 | exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False             | True           |
 | exp12       | Dice + CE     | RMSprop   | False        | 0.2145     | 0.2457     | False             | False          |
+
 -*To access weights, please contact: _yakhyo9696@gmail.com_
 
 **In this project I have used/implemented following libraries/modules:**
