@@ -403,20 +403,20 @@ the experiments model reached its best performance (**0.3394**) while the follow
 
 You can find the whole experiments history in the table given below.
 
-| Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | RandomPerspective | class  weights |
-|-------------|---------------|-----------|--------------|------------|------------|-------------------|----------------|
-| exp1        | Dice + CE     | RMSprop   | False        | **0.3394** | 0.3244     | False             | False          |
-| exp2        | Dice + CE     | RMSprop   | True         | 0.2923     | 0.3195     | False             | False          |
-| exp3        | CE            | RMSprop   | False        | 0.3260     | **0.3291** | False             | False          |
-| exp4        | CE            | RMSprop   | False        | 0.1427     | 0.1691     | True              | False          |
-| exp5        | CE            | RMSprop   | True         | 0.1421     | 0.1785     | True              | False          |
-| exp6        | Dice + CE     | Adam      | False        | 0.2595     | 0.2956     | False             | False          |
-| exp7        | Dice + CE     | Adam      | True         | 0.2682     | 0.3121     | False             | False          |
-| exp8        | Focal         | RMSprop   | False        | 0.2548     | 0.2960     | False             | False          |
-| exp9        | Focal         | Adam      | False        | 0.2662     | 0.2990     | False             | False          |
-| exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False             | False          |
-| exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False             | True           |
-| exp12       | Dice + CE     | RMSprop   | False        | 0.2145     | 0.2457     | False             | False          |
+| Experiments | Loss Function | Optimizer | ROI Cropping | mIOU Test  | mIOU Val   | Random Perspective | class  weights |
+|-------------|---------------|-----------|--------------|------------|------------|--------------------|----------------|
+| exp1        | Dice + CE     | RMSprop   | False        | **0.3394** | 0.3244     | False              | False          |
+| exp2        | Dice + CE     | RMSprop   | True         | 0.2923     | 0.3195     | False              | False          |
+| exp3        | CE            | RMSprop   | False        | 0.3260     | **0.3291** | False              | False          |
+| exp4        | CE            | RMSprop   | False        | 0.1427     | 0.1691     | True               | False          |
+| exp5        | CE            | RMSprop   | True         | 0.1421     | 0.1785     | True               | False          |
+| exp6        | Dice + CE     | Adam      | False        | 0.2595     | 0.2956     | False              | False          |
+| exp7        | Dice + CE     | Adam      | True         | 0.2682     | 0.3121     | False              | False          |
+| exp8        | Focal         | RMSprop   | False        | 0.2548     | 0.2960     | False              | False          |
+| exp9        | Focal         | Adam      | False        | 0.2662     | 0.2990     | False              | False          |
+| exp10       | Focal         | RMSprop   | True         | 0.2725     | 0.3004     | False              | False          |
+| exp11       | Dice + CE     | RMSprop   | False        | 0.3165     | 0.3270     | False              | True           |
+| exp12       | Dice + CE     | RMSprop   | False        | 0.2145     | 0.2457     | False              | False          |
 
 -*To access weights, please contact: _yakhyo9696@gmail.com_
 
